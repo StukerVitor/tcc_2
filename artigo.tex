@@ -1,0 +1,543 @@
+%
+% Exemplo LaTeX de artigo UNISINOS
+%
+% Elaborado com base nas orientações dadas no documento
+% ``GUIA PARA ELABORAÇÃO DE TRABALHOS ACADÊMICOS''
+% disponível no site da biblioteca da Unisinos.
+% http://www.unisinos.br/biblioteca
+% 
+% Os elementos textuais abaixo são apresentados na ordem em que devem
+% aparecer no documento.  Repare que nem todos são obrigatórios - isso
+% é devidamente indicado em cada caso.
+%
+% Comentários abaixo colocados entre aspas (`` '') foram
+% extraídos diretamente do documento da biblioteca.
+%
+% Este documento é de domínio público.
+%
+
+%=======================================================================
+% Declarações iniciais identificando a classe de documento e
+% selecionando alguns pacotes adicionais.
+%
+% As opções disponíveis (separe-as com vírgulas, sem espaço) são:
+% - twoside: Formata o documento para impressão frente-e-verso
+%   (o default é somente-frente)
+% - english,brazilian,french,german,etc.: idiomas usados no documento.
+%   Deve ser colocado por último o idioma principal.
+%=======================================================================
+\documentclass[english]{UNISINOSartigo} %twoside
+\usepackage[utf8]{inputenc} % charset do texto (utf8, latin1, etc.)
+\usepackage[T1]{fontenc} % encoding da fonte (afeta a sep. de sílabas)
+\usepackage{graphicx} % comandos para gráficos e inclusão de figuras
+\usepackage{bibentry} % para inserir refs. bib. no meio do texto
+\usepackage{float}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{newfloat}
+\usepackage{setspace}
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[export]{adjustbox}
+\usepackage{tabularx}
+
+% Texto "Fonte" (genérico p/ qualquer float)
+\newcommand{\floatsource}[1]{\caption*{\footnotesize\textit{Source: #1}}}
+% linha de fonte abaixo do algoritmo
+\newcommand{\algsourcebelow}[1]{%
+  \captionsetup{type=algorithm}%
+  \caption*{\footnotesize\textit{Source: #1}}%
+}
+
+% Aliases semânticos (use qualquer um deles)
+\newcommand{\tablesource}[1]{\floatsource{#1}}
+\newcommand{\figsource}[1]{\floatsource{#1}}
+\newcommand{\algsource}[1]{\floatsource{#1}}
+
+% Texto explicativo antes da imagem (fora do float)
+\newcommand{\prefig}[1]{\noindent\textbf{#1}\par\vspace{2pt}}
+
+% algorithm2e já carregado:
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+\DontPrintSemicolon
+\renewcommand{\algorithmcfname}{Algorithm}   % "Algorithm 1"
+\SetAlgoCaptionSeparator{:\,}                % "Algorithm 1: Título"
+
+% --- deixar compacto ---
+\setlength{\algomargin}{0.4em}               % margem esquerda (menor)
+\SetInd{0.4em}{0.6em}                        % indentação
+\SetAlgoNlRelativeSize{-2}                   % números de linha menores
+
+% fontes menores no título e corpo do algoritmo
+\SetAlFnt{\footnotesize}
+\SetAlCapFnt{\footnotesize}
+\SetAlCapNameFnt{\footnotesize}
+
+% macro para nomes de funções em mono (evita small caps quebrando o camelCase)
+\newcommand{\fn}[1]{\texttt{#1}}
+%\usepackage{longtable}
+
+% Captions no topo e fonte padronizada embaixo
+\usepackage{caption}
+
+\captionsetup[table]{position=top}
+\captionsetup[figure]{position=top}
+\captionsetup[algorithm]{position=top}
+
+\newcolumntype{L}{>{\centering\arraybackslash}m{6.2cm}}
+\newcolumntype{G}{>{\centering\arraybackslash}m{5.5cm}}
+\newcolumntype{A}{>{\centering\arraybackslash}m{2.4cm}}
+\newcolumntype{B}{>{\centering\arraybackslash}m{7.5cm}}
+%=======================================================================
+% Escolha do sistema para geração de referências bibliográficas.
+%=======================================================================
+\usepackage[alf]{abntex2cite}
+
+\autor{STÜKER}{VITOR}
+\titulo{LASCAS - Legal Accessibility and Simplification for Cognitive Aid System:}
+\subtitulo{A System for Legal Text Simplification for Cognitive Accessibility}
+\orientador[PhD]{Roehrs}{Alex}
+%\coorientador[Prof.~Dr.]{Lamport}{Leslie}
+\local{São Leopoldo}
+\ano{2026}
+\unidade{Unidade Acadêmica de Graduação}
+\curso{Bachelor's Degree in Computer Science}
+\natureza{%
+Article presented as a partial requirement to obtain the title of Bachelor in Computer Science, by the Computer Science Course of the University of Vale do Rio dos Sinos (UNISINOS)}
+
+%=======================================================================
+% Início do documento.
+%=======================================================================
+
+\begin{document}
+\capa
+\folhaderosto
+
+% Diferentemente do normal, os comandos a seguir devem vir aqui mesmo,
+% e não antes do \begin{document} onde seria o lugar deles. 
+\tituloArtigo{LASCAS: A System for Legal Text Simplification for Cognitive Accessibility}{}
+\autorArtigo{Vitor Stüker\footnote{Graduating in Computer Science at Unisinos. Email: vitoralmeida1@edu.unisinos.br}}
+\autorArtigo{Alex Roehrs\footnote{Professor of IT Courses at Unisinos. Email: alexr@unisinos.br}}
+
+%=======================================================================
+% Resumo em Português.
+%=======================================================================
+\begin{abstract}
+Legal documents are fundamental to civic participation, yet their inherent complexity creates significant barriers to comprehension for a large segment of the population, particularly for individuals with cognitive and learning disabilities. This study addresses the challenge of legal text inaccessibility by proposing the LASCAS (Legal Accessibility and Simplification for Cognitive Aid System) prototype, an automated system designed to simplify Brazilian legal Portuguese. This work establishes a theoretical framework grounded in the principles of cognitive accessibility, as defined by the Web Content Accessibility Guidelines (WCAG), and the practical methodologies of the Plain Language movement. We conduct a thorough review of Automatic Text Simplification (ATS) as a field within Natural Language Processing (NLP), detailing its core sub-tasks of lexical and syntactic simplification. A technical primer on the Transformer architecture is provided, establishing the foundation for understanding the state-of-the-art models central to this domain. Through a comparative analysis of current research in legal text simplification, this study identifies a persistent research gap: an unresolved tension between achieving semantic fidelity, ensuring genuine accessibility, and operating within a data-scarce environment. The LASCAS project is positioned as an investigation into balancing these competing demands by leveraging modern NLP techniques to enhance access to justice and promote digital inclusion.
+\palavraschave{Text Simplification. Cognitive Accessibility. Natural Language Processing. Legal Tech. Transformer Models.}
+\end{abstract}
+
+%=======================================================================
+% Introdução
+%=======================================================================
+\section{Introduction}
+
+The convergence of Cognitive Computing and Natural Language Processing (NLP) is creating increasingly sophisticated systems capable of understanding and interacting with human language in a meaningful way \cite{kumar2025role}. This technological advancement holds particular promise for the legal domain, where documents ranging from judicial rulings to terms of service form the bedrock of civic life. However, a profound disconnect exists between the importance of these texts and their accessibility. The specialized language of law, or "Legalese," is characterized by an intricate vocabulary and convoluted sentence structures, creating a formidable barrier to comprehension for non-experts \cite{luger2024towards}.
+
+The scale of this challenge is amplified by literacy statistics. In Brazil, data indicates that a significant portion of the population lacks the functional literacy skills required to parse complex, high-stakes documents \cite{alves2023automatic}. This gap is not merely academic; it has profound consequences. The inability to understand a contract or a court summary impedes an individual's ability to make informed decisions and exercise their rights, creating a dependency on legal professionals whose services can be prohibitively expensive. This exacerbates social inequities and limits access to justice, a problem that automated simplification systems are uniquely positioned to address \cite{agrawal2024do}.
+
+This problem of inaccessible legal language is a recognized societal challenge, prompting action from governmental bodies worldwide. Initiatives such as the Plain Writing Act of 2010 in the United States and resolutions from Brazil's National Council of Justice (CNJ) explicitly call for clearer communication \cite{alves2023automatic}. The development of automated systems for legal text simplification is, therefore, a direct response to a pressing need to bridge the communication gap between the judiciary and the populace. Such technology aligns with a global movement towards making legal information a public good, accessible to all regardless of educational background.
+
+The response to this challenge is increasingly found at the intersection of law and artificial intelligence, often termed "Legal Tech" \cite{ribeiro2024iajuridica}. Specifically, the field of Natural Language Processing (NLP) offers the tools to analyze and, more importantly, transform complex legal language at scale \cite{ariai2024nlp}. This technological intervention is not merely for convenience; it is a necessary step to operationalize the principles of cognitive accessibility and Plain Language for the vast and growing body of digital legal information. This work is situated within this exact context, proposing a computational approach to mitigate a deeply rooted communication barrier.
+
+\subsection{Problem Statement}
+
+The core problem addressed by this thesis is that legal texts in Brazilian Portuguese are characterized by a high degree of linguistic and structural complexity, rendering them functionally inaccessible to a significant portion of the population \cite{mello2023acessojustica}. This complexity is not a mere stylistic inconvenience; it functions as a systemic barrier that perpetuates a dependency on legal intermediaries, transforming access to justice from a public right into a service contingent on financial resources or specialized education \cite{silva2023barreiras}.
+
+This inaccessibility has a disproportionate impact on individuals with cognitive or learning disabilities \cite{barbosa2024inclusao}. For this group, the high cognitive load imposed by convoluted syntax and low-frequency jargon directly contravenes foundational principles of inclusive design and web accessibility \cite{chen2022cognitive}. Consequently, this inaccessibility undermines the principles of informed consent, equal access to justice \cite{santos2023desafioslegais}, and digital inclusion \cite{agrawal2024do}. This last point is critical in the current technological landscape: as essential civic and commercial interactions move online, this linguistic barrier creates a "second-level digital divide," where citizens may have \textit{access} to digital platforms (e.g., terms of service, government portals) but are denied \textit{comprehension} of their rights and obligations \cite{fernandes2024digitaldivide}.
+
+\subsection{Research Question and Objectives}
+
+This study is guided by a central research question and a set of specific objectives designed to systematically explore the problem space and potential solutions.
+
+Research Question:
+\textit{How can modern Natural Language Processing techniques, particularly those based on the Transformer architecture, be effectively applied to simplify Brazilian Portuguese legal texts to improve their cognitive accessibility in accordance with Plain Language principles?}
+
+Specific Objectives:
+\begin{itemize}
+    \item To clarify the relationship between cognitive accessibility, Plain Language and Automatic Text Simplification in the context of Brazilian Portuguese legal documents.
+    \item To specify the accessibility, readability and semantic-fidelity goals that simplified legal texts produced by LASCAS must satisfy for readers with different literacy levels and cognitive profiles.
+    \item To develop the LASCAS prototype as a local-first system capable of transforming real Brazilian legal documents (HTML and PDF) into cognitively accessible versions aligned with those goals.
+    \item To integrate LASCAS into a browser-based interface that allows users to request and visualize simplified versions of legal texts side-by-side with the original document.
+    \item To evaluate whether the use of LASCAS improves users’ perceived understanding and usability of legal texts, and to identify the main strengths, limitations and improvement opportunities of the system.
+\end{itemize}
+
+\subsection{Division of Work}
+
+This thesis is structured in a logical progression from theory to implementation and evaluation. Section I establishes the academic and societal context, providing the theoretical foundations in cognitive accessibility, Plain Language, and Natural Language Processing, alongside a thorough review of related work in legal text simplification. Section II will then detail the architectural design and development of the LASCAS prototype, covering data preprocessing, model selection, and the specific algorithms employed. Finally, Section III will present the evaluation methodology, discuss the metrics used, and provide a critical analysis of the system's performance, its limitations, and directions for future work.
+
+\section{Background}
+
+To situate the LASCAS project, this section outlines the foundational concepts at the intersection of accessibility, linguistics, and computation. We first explore the "why"—the principles of cognitive accessibility and Plain Language that define the goal. We then detail the "how"—the core technologies of Automatic Text Simplification (ATS) and the Transformer models that enable it. The specific features that define the complexity of legal text, which this project directly targets, are well-documented and can be categorized as follows:
+
+\begin{itemize}
+ \item \textit{Lexical Complexity:} The pervasive use of domain-specific jargon, archaic terminology, and foreign phrases unfamiliar to non-experts.
+ \item \textit{Syntactic Complexity:} The prevalence of long, convoluted sentences containing multiple nested clauses and the passive voice, which can obscure meaning and increase processing difficulty.
+ \item \textit{High Information Density:} The condensation of numerous conditions and exceptions into single, dense paragraphs, demanding high levels of sustained attention and working memory.
+\end{itemize}
+
+\subsection{Cognitive Accessibility and Plain Language}
+
+Cognitive accessibility is an aspect of inclusive design focused on making information understandable for people with a wide range of cognitive and learning disabilities affecting memory, attention, and language comprehension \cite{w3c2023wcag}. The W3C's Web Content Accessibility Guidelines (WCAG) provide a framework for this, with Guideline 3.1, "Readable," being particularly pertinent. Its intent is to ensure users can correctly interpret text. Key success criteria under this guideline that directly motivate this thesis include \cite{w3c2023wcag}:
+
+\begin{itemize}
+    \item \textit{Unusual Words (3.1.3):} Recommends providing a mechanism for identifying definitions of words or phrases used in an unusual or restricted way, including jargon and idioms.
+    \item \textit{Abbreviations (3.1.4):} Calls for a mechanism to be available for identifying the expanded form or meaning of abbreviations.
+    \item \textit{Reading Level (3.1.5):} Considered a cornerstone of this work, this criterion recommends that when content requires an advanced reading ability, a supplementary version that does not require such ability should be provided.
+\end{itemize}
+
+Collectively, these criteria establish a direct mandate for text simplification as a necessary accommodation. While cognitive accessibility defines the goal, the Plain Language framework provides the methodology. Plain Language is communication so clear that the intended audience can easily find what they need, understand it, and use it effectively. Its principles offer concrete guidelines for rewriting complex text, which can be operationalized by an automated system \cite{iso2023plain}. Key principles include structural simplicity (short sentences, clear headings), lexical simplicity (common words instead of jargon), and directness (using the active voice). Manually applying this methodology to the vast corpus of legal documents is impractical \cite{alves2023automatic}. This is where NLP serves as the enabling tool, providing the means to automate the Plain Language methodology at scale. This thesis is therefore positioned at the intersection of these fields, aiming to operationalize a design philosophy (Plain Language) with a specific technology (NLP) to achieve a critical goal (Cognitive Accessibility).
+
+\subsection{Automatic Text Simplification with Transformers}
+
+Natural Language Processing (NLP) is a subfield of AI concerned with enabling computers to understand and manipulate human language. Within NLP, Automatic Text Simplification (ATS) aims to transform a text into an easier-to-read version while preserving its original meaning \cite{alves2023automatic}. It is distinct from summarization, which inherently reduces information content. ATS operates through two primary sub-tasks: lexical and syntactic simplification.
+
+The majority of state-of-the-art NLP models are based on the Transformer architecture \cite{alissa2023text}. The Transformer's key innovation was its reliance on attention mechanisms, which proved highly effective at capturing long-range dependencies between words. It follows an encoder-decoder structure well-suited for text-to-text tasks like simplification. The encoder processes the input complex sentence to build a context-aware numerical representation, and the decoder uses this representation to generate the simplified output one token at a time. The core of this architecture is the multi-head self-attention mechanism, which allows the model to weigh the importance of different words in the input when processing the sequence. This enables it to jointly attend to information from different representational subspaces, enhancing its ability to capture the complex relationships between words in a sentence \cite{alissa2023text}. This architecture provides the powerful foundation upon which modern simplification models are built.
+
+\section{Related Work}
+
+Related work was identified through a reproducible, funnel-style search (May--Nov~2025) across Google Scholar, ACL Anthology, Scopus, and DBLP. A broad query \texttt{\detokenize{"legal text simplification" OR "plain language" AND (law OR legal)}} with a 2022--2025 year filter yielded \emph{$\sim 60$} items screened by title/abstract. Scope was then restricted to \textit{Automatic Text Simplification (ATS)} in the legal domain using \texttt{\detokenize{"text simplification" AND legal AND (contract OR judgment OR statute)}} and \texttt{\detokenize{Transformer OR T5 OR BART}}, retaining studies that explicitly targeted legal texts and reported methods or evaluations beyond summarization, reducing the pool to \emph{$\sim 25$}. Locale-sensitive queries captured Portuguese and Russian efforts---e.g., \texttt{\string"simplifica\c{c}\~ao de texto\string" AND jur\'{\i}dico} and \texttt{\detokenize{"legal text simplification" AND Russian}}---and duplicates/near-duplicates were removed, leaving \emph{$\sim 14$}. Inclusion then required either empirical ATS on legal data with metrics and/or human judgments, or peer-reviewed conceptual frameworks grounding plain-language and AI-assisted rephrasing for legal accessibility. After full-text screening, \emph{6} primary papers remained: three empirical ATS studies in the legal domain---\cite{garimella2022insights,alves2023automatic,athugodage2024transfer}---and three works framing plain language and AI-assisted rephrasing as accessibility enablers in law---\cite{toivonen2025jelt,zimina2025gai}. This set aligns with the identified research gap (semantic fidelity vs.\ accessibility under data scarcity) and underpins Table~\ref{tab:related_work_comparison}. Figure~\ref{fig:research_funnel} summarizes this funnel-style search and screening process.
+
+\begin{figure}[H]
+  \centering
+  \caption{Funnel-style search and screening process for related work.}
+  \includegraphics[width=.7\linewidth]{images/research.pdf}
+  \label{fig:research_funnel}
+  \figsource{prepared by the author (2026)}
+\end{figure}
+
+\textbf{\cite{toivonen2025jelt}} discuss plain-language communication and the role of AI within the emerging paradigm of “personalized law,” arguing that user-centered legal design and clear, plain wording are prerequisites for accessibility rather than optional stylistic choices \cite{toivonen2025jelt}. They caution that AI should augment—not replace—human judgment, recommending co-/self-regulatory workflows, explicit standards, and oversight to avoid opacity and loss of legal nuance. Although not an empirical simplification benchmark, the paper positions plain language and responsible AI as foundations for any scalable approach to making legal texts understandable.
+
+\textbf{\cite{garimella2022insights}} explored text simplification (TS) for legal contracts, confirming the lack of parallel data as a key challenge. Evaluating unsupervised methods (lexical, splitting, generation) and a supervised BART model, they found significant \textit{disagreement among legal experts on simplicity} and \textit{weak correlations between automatic metrics and human judgments} \cite{garimella2022insights}. Their work underscored the trade-offs between fluency, meaning preservation, and simplification level in existing techniques.
+
+\textbf{\cite{athugodage2024transfer}} address data scarcity for Russian legal text by creating a novel parallel corpus pairing official legal documents with plain-language explanations from the "Rossiyskaya Gazeta" newspaper \cite{athugodage2024transfer}. Using this dataset, they successfully \textit{fine-tuned the T5 and GPT models}, which, despite poor ROUGE scores, achieved good results in SARI and readability metrics, often exceeding human-written commentaries according to human evaluation.
+
+\textbf{\cite{alves2023automatic}} similarly focus on Brazilian Portuguese \textit{judicial summaries}, tackling data scarcity by generating a synthetic parallel dataset using the unsupervised MUSS model \cite{alves2023automatic}. This synthetic data was then used to train supervised Transformer and NMT models. Their evaluation showed that most methods, particularly the Transformer model and MUSS combined with translation, successfully \textit{improved Flesch Reading Ease (FRE) scores} compared to the original complex summaries.
+
+\textbf{\cite{zimina2025gai}} examine generative AI models as content-rephrasing assistants to produce Plain Language and Easy-to-Read versions of legal texts in multilingual settings \cite{zimina2025gai}. Using case-based analysis, they show that while GAI can substantially simplify phrasing and structure, it still lacks functional legal awareness; consequently, effective workflows require human oversight, clear domain guidelines, and integrated review tools to prevent pragmatic and semantic losses in legal communication.
+
+\begin{table}[H]
+    \centering
+    \caption{Comparative Analysis of Related Work in Legal Text Simplification}
+    \label{tab:related_work_comparison}
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabularx}{\textwidth}{
+        >{\raggedright}p{2.0cm}
+        >{\raggedright}p{2.5cm}
+        >{\raggedright}X
+        >{\raggedright}p{3.0cm}
+        >{\raggedright\arraybackslash}p{4.5cm}}
+        \toprule
+        \textbf{Reference} & \textbf{Focus / Domain} & \textbf{Approach / Technique} & \textbf{Data Strategy} & \textbf{Key Finding / Limitation} \\
+        \midrule
+        Toivonen et al. (2025) & Plain language and legal design for personalized law & Conceptual framework, AI-assisted legal communication; user-centered design & Conceptual, literature-based (no dedicated parallel corpus) & Emphasizes clear wording plus responsible AI; requires human oversight, standards, and review workflows; not an empirical TS model. \\
+        \addlinespace
+        Garimella et al. (2022) & Text Simplification (TS) for Legal Contracts (SEC Clauses) & Compared Unsupervised (BERT-LS, DISSIM, KIS) \& Supervised (BART) & Used existing unsupervised methods; BART trained on non-legal/contract data & Expert disagreement on simplicity; Weak correlation of auto metrics vs. human judgment; Trade-offs (fluency, meaning). \\
+        \addlinespace
+        Athugodage et al. (2024) & Russian Legal Text Simplification & Supervised Fine-tuning (T5, GPT) & Created novel parallel corpus (Govt. newspaper explanations) & Viability of fine-tuning demonstrated; Models improved readability (FKGL, Fog) \& SARI; ROUGE scores poor. \\
+        \addlinespace
+        Alves et al. (2023) & Brazilian Portuguese Judicial Summaries (TRF5, STF) & Compared Unsupervised (MUSS) \& Supervised (Transformer, NMT+Attention) & Generated synthetic parallel data using MUSS & Most methods improved readability (FRE); Transformer \& MUSS+Translate performed well; NMT+Attention struggled. \\
+        \addlinespace
+        Zimina-Poirot et al. (2025) & Plain/Easy-to-Read for legal texts (multilingual) & GAI-assisted rephrasing; case-based study; guideline-driven workflow & Authentic examples; no dedicated parallel corpus (journal article) & GAI simplifies effectively but lacks functional legal awareness; requires human oversight, standards, and review tooling. \\
+        \bottomrule
+    \end{tabularx}
+    \tablesource{prepared by the author (2026)}
+\end{table}
+
+\section{LASCAS Model}
+
+To address the problem of legal text inaccessibility, this thesis proposes the conceptualization and development of the LASCAS (Legal Accessibility and Simplification for Cognitive Aid System) prototype. LASCAS is envisioned as an Automatic Text Simplification (ATS) system that leverages modern Natural Language Processing (NLP) techniques to transform complex legal Brazilian Portuguese into a more understandable form aligned with Plain Language principles. The primary goal of LASCAS is to enhance the cognitive accessibility of legal documents by systematically reducing their lexical and syntactic complexity, thereby lowering the cognitive load required for comprehension.
+
+\subsection{Architecture}
+
+LASCAS is a local-first pipeline that ingests HTML or PDF, normalizes legal artifacts, applies \emph{level-aware token safety}, and then simplifies the text using a hybrid core that combines a local LLM (via Ollama) with deterministic fallbacks. A thin browser extension invokes the local API and renders results side-by-side. The main components are:
+
+\begin{itemize}
+\item \textit{Local API (Node/Express):} the primary JSON endpoint \texttt{/simplify} orchestrates the end-to-end flow for HTML and PDF (via URL or Base64). In addition, the prototype exposes \texttt{/simplify-pdf} for binary PDF uploads (\texttt{application/pdf}), which reduces payload overhead for large files and improves robustness in real usage.
+\item \textit{PDF Extraction:} robust text extraction using \texttt{pdfjs-dist} legacy build; includes a geometry-based reconstruction that re-assembles lines by $x$–$y$ coordinates and adaptive gap heuristics, plus page-gluing rules that avoid spurious blank paragraphs.
+\item \textit{Preprocessing:} normalization of legal artifacts (numbers, punctuation, diacritics, currency, dates), sentence splitting with abbreviation shielding, and paragraph-aware chunking for the condensation levels. \textbf{Token safety is level-aware:} in \texttt{light}, placeholders are used to protect critical items before any LLM call. In \texttt{medium}/\texttt{strong}, the system prioritizes the \emph{preservation and validation} of essential items (e.g., dates, values, percentages, legal citations, registry/process identifiers, and negations), while PII/qualification fields may be omitted by design.
+\item \textit{Simplification Core:} hybrid engine that (i) prompts the local model \texttt{llama3.1:8b-instruct} via Ollama (configured in the prototype through \texttt{LASCAS\_MODEL}); (ii) rejects unusable outputs (timeouts, meta-preambles, or overly similar rewrites); (iii) deterministic restructuring fallback that enforces visible structure (short lines, headings, bullets); and (iv) glossary first-occurrence annotations for unusual words and abbreviations (WCAG 3.1 intent).
+\item \textit{Integrity Layer (level-aware):} semantic safety check that validates preservation of \emph{essential} legal information. In \texttt{light}, integrity is strict (high fidelity, near-complete preservation). In \texttt{medium}/\texttt{strong}, integrity is configured for summarization: it still preserves dates, values, percentages, legal citations and registry/process references, but allows non-essential personal qualifications (e.g., CPF/RG, address, repetitions) to be dropped to achieve meaningful condensation.
+\item \textit{Extension Shell (MV3):} popup selects simplification level and messages the content script; CSS sidebar is injected as a web-accessible resource for side-by-side viewing. PDFs can be forwarded as Base64 through \texttt{/simplify} or as binary uploads through \texttt{/simplify-pdf}, depending on browser constraints and file size.
+\end{itemize}
+
+\prefig{Figure~\ref{fig:arch} summarizes the high-level architecture of LASCAS, including the user interface, local service, and document sources.}
+\begin{figure}[H]
+  \centering
+  \caption{Component-level architecture}
+  \label{fig:arch}
+  \includegraphics[max width=\textwidth, max height=\textheight, keepaspectratio]{images/arch.pdf}
+  \figsource{prepared by the author (2026)}
+\end{figure}
+
+\noindent \textbf{Component mapping to files.} Table~\ref{tab:components} maps each logical component of the architecture to its corresponding source files.
+
+\begin{table}[H]\centering
+\caption{Component mapping to source files in LASCAS.}
+\label{tab:components}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Component} & \textbf{File(s)} \\
+\midrule
+Local API / warm-up / route & \texttt{lascas-local/server.js} \\
+PDF extractor \& fallbacks & \texttt{lascas-local/src/pdf.js} \\
+Preprocess \& protection & \texttt{lascas-local/src/preprocess.js} \\
+Glossary annotations & \texttt{lascas-local/src/glossary.js} \\
+Hybrid simplification core & \texttt{lascas-local/src/simplifier.js} \\
+Integrity validator & \texttt{lascas-local/src/validators.js} \\
+MV3 manifest & \texttt{lascas-extension/public/manifest.json} \\
+Content CSS & \texttt{lascas-extension/public/sidebar.css} \\
+Popup UI (React) & \texttt{lascas-extension/src/App.tsx} \\
+Popup UI (React) & \texttt{lascas-extension/src/main.tsx} \\
+Content script / page integration & \texttt{lascas-extension/src/content.ts} \\
+\bottomrule
+\end{tabular}
+\tablesource{prepared by the author (2026)}
+\end{table}
+
+\subsection{Algorithm}
+
+The LASCAS pipeline is implemented as a \textbf{level-aware} procedure. The \texttt{light} level focuses on \emph{sentence-level rewriting} (high fidelity, near-original length), while \texttt{medium} and \texttt{strong} apply \emph{condensation} with a guaranteed-shrink heuristic fallback. Algorithm~\ref{alg:lascas} presents the step-wise procedure used in the prototype.
+
+\noindent \textbf{Parameters by level.} The main hyperparameters for each simplification level are summarized in Table~\ref{tab:level-params}.
+
+\begin{table}[H]\centering
+\caption{Level parameters used by the prototype backend.}
+\label{tab:level-params}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Level} & \textbf{Mode} & \textbf{Temperature} & \textbf{Output target} & \textbf{Per-call budget (ms)} \\
+\midrule
+light  & rewrite (sentence) & 0.12 & $\approx$0--20\% & 24{,}000 \\
+medium & condense (chunk) & 0.16 & target ratio $\approx$0.55 & 52{,}000 \\
+strong & condense (chunk) & 0.18 & target ratio $\approx$0.35 & 65{,}000 \\
+\bottomrule
+\end{tabular}
+\tablesource{prepared by the author (2026)}
+\end{table}
+
+\noindent For condensation levels, paragraph-aware chunking uses 520--1050 words per chunk, and a one-time cold-start boost is applied to early calls to reduce timeout risk.
+
+\begin{algorithm}[H]
+\caption{LASCAS--Level--Aware--Simplify}
+\label{alg:lascas}
+\begingroup
+\footnotesize
+\setstretch{0.96}
+
+\SetKwInOut{Input}{Input}
+\SetKwInOut{Output}{Output}
+
+\Input{$T_{\mathrm{in}}$ (raw text), $level \in \{\texttt{light},\texttt{medium},\texttt{strong}\}$}
+\Output{$T_{\mathrm{out}}$ simplified}
+
+$T_0 \leftarrow \fn{NormalizeArtifactsForLegal}(T_{\mathrm{in}})$\;
+$T_1 \leftarrow \fn{DeterministicPreStructure}(T_0)$\;
+\eIf{$level = \texttt{light}$}{
+  \tcp{High-fidelity sentence rewrite}
+  $(T_{\mathrm{prot}}, PH) \leftarrow \fn{ProtectPlaceholdersLight}(T_1)$\;
+  $P \leftarrow \fn{SplitParagraphs}(T_{\mathrm{prot}})$\;
+  $Out \leftarrow [\,]$\;
+  \ForEach{$p \in P$}{
+    \If(\tcp*[h]{Keep headings as-is}){$\fn{IsHeadingLike}(p)$}{\fn{Append}$(Out, p)$; \textbf{continue}\;}
+    $S \leftarrow \fn{SplitSentencesProtected}(p)$\;
+    $S' \leftarrow [\,]$\;
+    \ForEach{$s \in S$}{
+      $cand \leftarrow \fn{TryCallOllamaRewrite}(s, \fn{Budget}(level))$\;
+      \eIf{$\fn{AcceptRewrite}(s, cand)$}{
+        \fn{Append}$(S', cand)$\;
+      }{
+        \fn{Append}$(S', s)$\;
+      }
+    }
+    \fn{Append}$(Out, \fn{Join}(S',\," "))$\;
+  }
+  $T_{\mathrm{prot}} \leftarrow \fn{Join}(Out,\,"\textbackslash n\textbackslash n")$\;
+  $T_{\mathrm{out}} \leftarrow \fn{UnprotectPlaceholders}(T_{\mathrm{prot}}, PH)$\;
+  $T_{\mathrm{out}} \leftarrow \fn{PostStructureAndNormalize}(T_{\mathrm{out}})$\;
+  $T_{\mathrm{out}} \leftarrow \fn{AnnotateFirstOccurrences}(T_{\mathrm{out}})$\;
+  \If{\textbf{not} $\fn{ValidateIntegrity}(T_0, T_{\mathrm{out}},\texttt{strict})$}{
+    $T_{\mathrm{out}} \leftarrow \fn{DeterministicFallback}(T_0)$\;
+  }
+}{
+  \tcp{Condensation with guaranteed shrink}
+  $C \leftarrow \fn{SplitIntoChunksByWords}(T_1, 520, 1050)$\;
+  $Out \leftarrow [\,]$\;
+  \ForEach{$c \in C$}{
+    $req \leftarrow \fn{PickRequiredTokens}(c,\ level)$\;
+    $cand \leftarrow \fn{TryCallOllamaCondense}(c, req, \fn{Budget}(level))$\;
+    \eIf{$\fn{AcceptCondense}(c, cand, req)$}{
+      \fn{Append}$(Out, cand)$\;
+    }{
+      $h \leftarrow \fn{HeuristicCondense}(c,\ level)$\;
+      \fn{Append}$(Out, h)$\;
+    }
+  }
+  $T_{\mathrm{out}} \leftarrow \fn{PostStructureAndNormalize}(\fn{Join}(Out,\,"\textbackslash n\textbackslash n"))$\;
+  $T_{\mathrm{out}} \leftarrow \fn{AnnotateFirstOccurrences}(T_{\mathrm{out}})$\;
+  \If{\textbf{not} $\fn{ValidateIntegrity}(T_0, T_{\mathrm{out}},\texttt{summary})$}{
+    $T_{\mathrm{out}} \leftarrow \fn{DeterministicFallback}(T_0)$\;
+  }
+}
+\Return{$T_{\mathrm{out}}$}\;
+
+\endgroup
+\end{algorithm}
+\algsourcebelow{prepared by the author (2026)}
+
+\prefig{Figure~\ref{fig:control-logic} illustrates the control logic and decision states for a single simplification pass.}
+\begin{figure}[H]
+  \centering
+  \caption{Decision states for a single pass.}
+  \label{fig:control-logic}
+  \includegraphics[width=.64\linewidth]{images/control-logic.pdf} 
+  \figsource{prepared by the author (2026)}
+\end{figure}
+
+\prefig{Figure~\ref{fig:api-sequence} shows the end-to-end request path between the browser extension and the local LASCAS service.}
+\begin{figure}[H]
+  \centering
+    \caption{End-to-end request path}
+    \label{fig:api-sequence}
+  \begin{adjustbox}{width=1.15\textwidth, center, keepaspectratio}
+    \includegraphics{images/api.pdf}
+  \end{adjustbox}
+  \figsource{prepared by the author (2026)}
+\end{figure}
+
+\subsection{Aspects of Implementation}
+
+This section details key technical choices and components within the LASCAS prototype, focusing on robustness, legal-specific processing, safety mechanisms, and integration points.
+
+\begin{itemize}
+\item \textit{PDF robustness:}
+The extractor uses \texttt{pdfjs-dist} legacy build with explicit worker/CMAP paths and applies a geometry-based reconstruction that re-assembles lines by $y$‐banding and adaptive gap thresholds (percentiles of glyph gaps per line). It also fixes \emph{dash-line breaks} in numbers (\texttt{1-\textbackslash n2} $\rightarrow$ \texttt{1-2}), collapses excessive newlines, and glues page breaks using sentence-aware heuristics to avoid accidental paragraph splits.
+
+\item \textit{Legal-aware normalization and token safety (level-aware):}
+The normalizer repairs Brazilian formats (\texttt{R\$ 133.569,32}), digit spacing artifacts (\texttt{133.569, 32} $\rightarrow$ \texttt{133.569,32}), and OCR-style issues typical of notary deeds. \textbf{Token safety is level-aware:}
+(i) in \texttt{light}, placeholders are used to protect critical content before LLM calls (numbers, dates, values, legal citations, negations, and fragile legal terms) and are restored after rewriting;
+(ii) in \texttt{medium}/\texttt{strong}, the system focuses on preserving and validating \emph{essential} items (dates, values, percentages, legal citations, and registry/process identifiers), while allowing non-essential qualification/PII fields to be omitted to achieve meaningful condensation.
+
+\item \textit{Sentence splitting and chunking:}
+Abbreviations (e.g., \emph{Art., Dr., Av.}) are shielded to avoid spurious splits. In \texttt{light}, rewriting is performed sentence-by-sentence within paragraphs. In \texttt{medium}/\texttt{strong}, the input is split into paragraph-aware chunks (520--1050 words) to respect token budgets and latency caps.
+
+\item \textit{LLM adapter and latency control:}
+The adapter targets a local Ollama endpoint and prompts \texttt{llama3.1:8b-instruct} (set through \texttt{LASCAS\_MODEL} in the prototype setup). It computes a dynamic \texttt{num\_predict} from input size and the per-level target, enforces per-call budgets, and uses soft timeouts (via abort signals). Cold starts receive a one-time boost for the first calls. Outputs that are empty, contain meta-preambles, or fail acceptance checks (e.g., insufficient change for rewrite; insufficient shrink for condensation) are rejected.
+
+\item \textit{Deterministic structuring:}
+The fallback enforces visible structure: short lines, stable headings, bulletization of semicolon-delimited lists, and targeted legal phrasing fixes. This guarantees readability even without the LLM and reduces the risk of returning nearly unchanged legalese.
+
+\item \textit{Glossary and cognitive accessibility:}
+On the first occurrence, selected legal terms are annotated inline with simple definitions (Portuguese), which supports WCAG 3.1 intent for unusual words and abbreviations.
+
+\item \textit{Semantic integrity gate (level-aware):}
+Before returning, the output is validated to preserve essential legal information. In \texttt{light}, integrity is strict and aims to preserve nearly all numeric and legal references. In \texttt{medium}/\texttt{strong}, integrity is configured for summarization: it still preserves dates, values, percentages, legal citations and registry/process references, but allows omission of non-essential personal qualifications (e.g., CPF/RG/address) when they do not affect the legal meaning of the excerpt.
+
+\item \textit{Extension integration:}
+The MV3 manifest injects a content script and exposes \texttt{sidebar.css} as a web-accessible resource. The popup selects \texttt{level} and communicates via tab messaging. For PDFs, the prototype supports (a) forwarding Base64 through \texttt{/simplify} and (b) forwarding raw bytes through \texttt{/simplify-pdf}. For local \texttt{file://} PDFs, the user may need to explicitly allow file access for the extension in the browser settings.
+\end{itemize}
+
+\noindent \textbf{Selected normalization rules (examples).} Table~\ref{tab:normalization-examples} lists representative normalization issues and where in the pipeline they are handled.
+
+\begin{table}[H]\centering
+\caption{Examples of normalization and where they are applied.}
+\label{tab:normalization-examples}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Issue} & \textbf{Example (in $\rightarrow$ out)} & \textbf{Origin} \\
+\midrule
+Dash break in numbers & \texttt{133- \textbackslash n 569} $\rightarrow$ \texttt{133-569} & PDF extraction fix \\
+PT-BR decimals spacing & \texttt{133.569, 32} $\rightarrow$ \texttt{133.569,32} & Preprocess regex \\
+Remove digit gaps & \texttt{1 2 3} $\rightarrow$ \texttt{123} & Preprocess regex \\
+Currency spacing & \texttt{R\$133} $\rightarrow$ \texttt{R\$ 133} & Preprocess regex \\
+Abbreviation shielding & \texttt{Art. 5º} (no split) & Splitter guard \\
+\bottomrule
+\end{tabular}
+\tablesource{prepared by the author (2026)}
+\end{table}
+
+\noindent \textbf{Server hardening and warm-up.}
+The API enables CORS, increases keep-alive timeouts, and performs a best-effort warm-up (\texttt{/api/tags} + 1-token chat) to reduce the first-call penalty while not blocking availability if the daemon is cold.
+
+\subsection{Limitations}
+
+Two practical limitations remain relevant for the current prototype. First, the quality of simplification is bounded by the behavior of the chosen local model and the latency constraints of commodity hardware; to mitigate this, LASCAS relies on acceptance checks and deterministic fallbacks. Second, packaging the browser extension requires ensuring that the build process emits stable filenames that match the MV3 manifest (e.g., \texttt{content.js}); otherwise, the content script may fail to load until the manifest or bundler configuration is aligned.
+
+\section{Evaluation Methodology}
+
+We adopt a mixed attitudinal approach that combines perceived usability (via the System Usability Scale, SUS) with acceptance constructs (via the Technology Acceptance Model, TAM). This choice is supported by recent SUS benchmarking work in applied settings and systematic evidence of TAM’s suitability for technology‐adoption research \cite{hyzy2022susbench, rosli2022tamreview}. Our design also follows studies that explicitly integrate SUS and TAM when evaluating interactive systems \cite{chuenyindee2022integrating}.
+
+\subsection{Participants and Procedure}
+Participants use the LASCAS browser extension to simplify at least one real legal document (HTML or PDF) and then complete the questionnaire. The procedure is unmoderated and consists of three steps: brief task instructions, task execution with the extension, and a post‐task questionnaire (Likert items plus one open‐ended question).
+
+\subsection{Instrument: Likert Scale and Items}
+All items use a 5‐point Likert scale (1 = \textit{Strongly disagree}, 2 = \textit{Disagree}, 3 = \textit{Neither}, 4 = \textit{Agree}, 5 = \textit{Strongly agree}). The ten statements are \textbf{randomized} to avoid presenting the positive/negative pair of the same construct consecutively, an arrangement recommended to reduce response artifacts in lightweight usability evaluations \cite{robertson2020discount}. The complete list of items is shown in Table~\ref{tab:survey-items}. The statements cover five constructs: Perceived Ease of Use (PEOU), Learnability, Perceived Usefulness (PU), Performance (latency/throughput), and Behavioral Intention (BI).
+
+\begin{table}[H]\centering
+\caption{Survey items in randomized order (negative items are reverse‐scored).}
+\label{tab:survey-items}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.12}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}l X l l@{}}
+\toprule
+\textbf{ID} & \textbf{Statement (English)} & \textbf{Dimension} & \textbf{Polarity} \\
+\midrule
+Q1  & The extension is easy to use. & PEOU (SUS/TAM) & Positive \\
+Q2  & I learned to use the extension quickly. & Learnability (SUS) & Positive \\
+Q3  & The system’s responses are fast enough for my tasks. & Performance (pragmatic) & Positive \\
+Q4  & I intend to keep using this extension in my work or studies. & BI (TAM) & Positive \\
+Q5  & The extension helps me understand legal text more effectively. & PU (TAM) & Positive \\
+Q6  & I needed to learn a lot before I could get going with this extension. & Learnability (SUS) & Negative (reverse) \\
+Q7  & The system is often too slow for me to be productive. & Performance (pragmatic) & Negative (reverse) \\
+Q8  & The extension is not easy to use. & PEOU (SUS/TAM) & Negative (reverse) \\
+Q9  & The extension does not improve my understanding of legal text. & PU (TAM) & Negative (reverse) \\
+Q10 & I do not intend to use this extension in the future. & BI (TAM) & Negative (reverse) \\
+\bottomrule
+\end{tabularx}
+\tablesource{prepared by the author (2026)}
+\end{table}
+
+\subsubsection*{Open‐ended question}
+At the end of the questionnaire, we include a free‐text prompt:
+\begin{quote}
+\emph{In your own words, what worked well and what should be improved in the extension?}
+\end{quote}
+
+\subsection{Scoring and Data Handling}
+
+This subsection outlines the scoring pipeline used to derive construct-level indices and an optional SUS-style composite. We first define the coding scheme, then compute construct means, perform an inconsistency check, assess reliability, and specify reporting outputs.
+
+\begin{itemize}
+\item \textit{Coding:} Responses are mapped to integers 1–5 in ascending agreement. Negative items (Q6, Q7, Q8, Q9, Q10) are reverse‐coded via $\mathrm{rev}(x)=6-x$. This scoring is consistent with contemporary SUS/TAM practice in mixed instruments \cite{robertson2020discount}.
+
+\item \textit{Construct scores:} We compute per‐construct means using the positive/negative pairs in their randomized positions:
+\[
+\begin{aligned}
+\mathrm{PEOU}&=\mathrm{mean}(Q1,\,\mathrm{rev}(Q8)),\quad
+\mathrm{Learnability}=\mathrm{mean}(Q2,\,\mathrm{rev}(Q6)),\\
+\mathrm{PU}&=\mathrm{mean}(Q5,\,\mathrm{rev}(Q9)),\quad
+\mathrm{Performance}=\mathrm{mean}(Q3,\,\mathrm{rev}(Q7)),\\
+\mathrm{BI}&=\mathrm{mean}(Q4,\,\mathrm{rev}(Q10)).
+\end{aligned}
+\]
+For an optional SUS‐style composite (0–100), we linearly rescale the summed item scores, following benchmarking practice in recent literature \cite{hyzy2022susbench}.
+
+\item \textit{Inconsistency check:} For each pair, we compute $\Delta=\lvert Q^{+}-\mathrm{rev}(Q^{-})\rvert$; large discrepancies (e.g., $\Delta>2$) are flagged as potential inattentive responses. Flags are reported as a data‐quality indicator and not used for automatic exclusion.
+
+\item \textit{Reliability and analysis:} We report internal consistency (Cronbach’s $\alpha$) per construct and for the full scale, along with descriptive statistics (mean $\pm$ SD). When comparing system variants, we employ nonparametric tests (e.g., Wilcoxon signed‐rank) or mixed models, with adjustments for multiple comparisons as needed. The TAM lens supports interpretation of PEOU/PU as antecedents of BI in our analysis narrative.
+
+\item \textit{Outputs and Reporting:} We present: (i) construct means for PEOU, Learnability, PU, Performance, and BI; (ii) the optional SUS‐style composite (0–100); (iii) the proportion of responses flagged by the inconsistency check; and (iv) key themes from the open‐ended answers. This structure aligns with recent integrated SUS+TAM evaluations in educational and productivity technologies.
+\end{itemize}
+
+\section{Results and Discussion}
+
+\section{Conclusion}
+
+\bibliographystyle{abntex2-alf}
+\bibliography{referencias}
+
+\end{document}

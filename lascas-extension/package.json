@@ -1,0 +1,23 @@
+{
+  "name": "lascas-extension",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.273",
+    "@types/node": "^24.5.2",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^5.0.4",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.0"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}

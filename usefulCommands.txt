@@ -1,0 +1,10 @@
+ollama list
+ollama show legal-simplifier   # deve exibir o base real (ex.: mistral:7b-instruct, qwen2:7b-instruct, etc.)
+mmdc -i arch.mmd -o arch.pdf --pdfFit
+
+
+sudo pkill ollama
+
+
+export OLLAMA_GPU_LAYERS=999
+ollama run legal-simplifier

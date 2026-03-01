@@ -1,0 +1,21 @@
+flowchart LR
+  subgraph UI["User Interface"]
+    U["Extension (Popup + Sidebar)"]
+  end
+
+  subgraph APP["Local Service"]
+    A["API (Express)"] --> C["Simplification Engine\n(LLM via Ollama + Rules)"]
+    C --> G["Integrity Gate"]
+  end
+
+  subgraph SRC["Sources"]
+    H["HTML"]
+    P["PDF (pdfjs-dist)"]
+    GL["Glossary / Validators"]
+  end
+
+  U --> A
+  H --> A
+  P --> A
+  GL -.-> C
+  G --> U

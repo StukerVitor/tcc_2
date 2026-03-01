@@ -1,0 +1,12 @@
+stateDiagram-v2
+[*] --> Protected
+Protected --> Chunked
+Chunked --> LLM: per-chunk prompt+budget
+LLM --> Structured: output ok
+LLM --> Fallback: timeout/too-similar
+Fallback --> Structured: deterministicSimplifier()
+Structured --> Glossary
+Glossary --> Unprotected
+Unprotected --> Validated: validateIntegrity()
+Validated --> [*]: pass
+Validated --> Fallback: fail -> deterministicSimplifier()+retry
