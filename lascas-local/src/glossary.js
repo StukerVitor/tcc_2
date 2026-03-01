@@ -31,7 +31,7 @@ export const GLOSSARY = [
 
   // Marital regimes
   { id: 'comunhao_parcial', terms: ['comunhão parcial de bens'], explanation: 'divide bens adquiridos durante o casamento' },
-  { id: 'comunhao_universal', terms: ['comunhão universal de bens'], explanation: 'inclui quase todos os bens do casal' },
+  { id: 'comunhao_universal', terms: ['comunhão universal de bens'], explanation: 'inclui todos os bens do casal' },
 
   // Existing legal glossary
   { id: 'litisconsorcio', terms: ['litisconsórcio'], explanation: 'várias partes no mesmo processo' },
