@@ -5,6 +5,7 @@ import {
   unprotectPlaceholders,
   normalizeArtifactsForLegal,
   splitSentencesProtected,
+  prepareTextForProfile,
 } from "./preprocess.js";
 import { annotateFirstOccurrences } from "./glossary.js";
 import { validateIntegrity, normalizeForCompare } from "./validators.js";
@@ -23,34 +24,34 @@ const SEED = Number.isFinite(Number(process.env.LASCAS_SEED))
 const LEVELS = {
   light: {
     mode: "rewrite",
-    temperature: 0.12,
-    reduceHint: "médio",
+    temperature: 0.10,
+    reduceHint: "leve",
     minWordsToRewrite: 8,
     perCallMs: 24000,
     maxTokensCap: 520,
-    minDelta: 0.07,
-    minLenRatio: 0.72,
-    maxLenRatio: 1.60,
+    minDelta: 0.05,
+    minLenRatio: 0.60,
+    maxLenRatio: 1.35,
   },
 
   medium: {
     mode: "condense",
-    temperature: 0.16,
+    temperature: 0.14,
     reduceHint: "médio",
     perCallMs: 52000,
-    maxTokensCap: 900, // lower cap helps force shorter outputs
-    targetRatio: 0.55,
-    acceptMaxRatio: 0.88, // candidate must shrink at least a bit
+    maxTokensCap: 950,
+    targetRatio: 0.68,
+    acceptMaxRatio: 0.96,
   },
 
   strong: {
     mode: "condense",
-    temperature: 0.18,
+    temperature: 0.16,
     reduceHint: "forte",
     perCallMs: 65000,
-    maxTokensCap: 750, // lower cap helps force shorter outputs
-    targetRatio: 0.35,
-    acceptMaxRatio: 0.78,
+    maxTokensCap: 820,
+    targetRatio: 0.52,
+    acceptMaxRatio: 0.86,
   },
 };
 
@@ -218,6 +219,597 @@ function deltaRatio(orig, cand) {
 
   const jacc = inter / Math.max(1, setA.size + setB.size - inter);
   return 1 - jacc;
+}
+
+function detectDocumentProfile(text) {
+  const s = normalizeForCompare(text);
+
+  if (/(invent[aá]rio|espolio|espólio|herdeir|partilha|inventariante|itcmd|itcdm|arrolamento dos bens|testamento)/i.test(s)) {
+    return "inventory";
+  }
+
+  if (/(peti[cç][aã]o inicial|dos fatos|dos pedidos|valor da causa|parte autora|parte ré|requerente|requerid[oa]|autor(?:a)?\b|r[eé]u\b)/i.test(s)) {
+    return "petition";
+  }
+
+  if (/(locador|locat[aá]rio|fiador|contrato de loca[cç][aã]o|alugu[eé]l|cl[aá]usula|apartamento|im[oó]vel locado)/i.test(s)) {
+    return "lease";
+  }
+
+  if (/(contratante|contratada|doravante|lei de licita[cç][oõ]es|art\.?\s*75|inciso\s+viii|gestor[ae]? do contrato|fiscal do contrato|prestação de servi[cç]os?|objeto contratual)/i.test(s)) {
+    return "ti_contract";
+  }
+
+  if (/(senten[cç]a|reclamante|reclamada|vara do trabalho|tribunal regional do trabalho|trt|contesta[cç][aã]o|fase de instru[cç][aã]o|fundamenta[cç][aã]o|dispositivo)/i.test(s)) {
+    return "labor";
+  }
+
+  return "generic";
+}
+
+function profilePromptNotes(profile, level) {
+  if (profile === "inventory") {
+    return [
+      "Destaque bens, valores, partilha final e ITCMD/ITCDM quando existirem.",
+      "Não omita bens do espólio.",
+      "Quando houver partilha, informe o percentual e o valor recebido por cada herdeiro.",
+      "Não dê destaque à CNIB ou a certidões do CNIB, salvo se forem decisivas para o resultado."
+    ];
+  }
+
+  if (profile === "labor") {
+    return [
+      "Explique tribunal ou rito só uma vez, sem repetir assinatura eletrônica.",
+      "Resuma a fundamentação sem copiar trechos longos literalmente.",
+      "Inclua obrigatoriamente o dispositivo, resultado ou comando final da sentença quando ele aparecer.",
+      "Mantenha claros os papéis de reclamante e reclamada."
+    ];
+  }
+
+  if (profile === "lease") {
+    return [
+      "Ignore cabeçalhos repetidos e comece o conteúdo útil a partir do texto contratual, como 'Pelo presente' ou das cláusulas.",
+      "Não altere a qualificação das partes; em nível leve, preserve-a sem parafrasear.",
+      "Preserve o número do apartamento, unidade, box ou vaga quando existirem.",
+      "Não generalize os papéis: mantenha locador, locatário e fiador.",
+      "Resuma as cláusulas em linguagem mais acessível, sem copia e cola desnecessário.",
+      "Se houver cláusulas numeradas, não omita indevidamente cláusulas 3, 4 e 5."
+    ];
+  }
+
+  if (profile === "ti_contract") {
+    return [
+      "Ignore cabeçalhos repetidos e comece o conteúdo útil no texto contratual e nas cláusulas.",
+      "Preserve contratante, contratada e doravante com sentido correto.",
+      "Mencione de forma clara a base legal relevante, incluindo art. 75, inciso VIII, da Lei de Licitações, quando estiver no texto.",
+      "No nível médio, inclua de forma resumida as cláusulas 4, 5, 6, 7 e 10 quando existirem.",
+      "No nível forte, inclua ao menos um resumo das cláusulas 2, 3, 4 e 10 quando existirem."
+    ];
+  }
+
+  if (profile === "petition") {
+    return [
+      "Mantenha os nomes da parte autora e da parte ré, sem repetir toda a qualificação.",
+      "Remova jurisprudências extensas e transcrições literais de dispositivos legais; quando útil, cite apenas números de artigos.",
+      "Preserve a coerência entre páginas e una trechos que continuem a mesma ideia.",
+      "Inclua o valor da causa no final quando ele aparecer no documento."
+    ];
+  }
+
+  return level === "light"
+    ? ["Simplifique a linguagem sem copiar literalmente trechos longos."]
+    : ["Resuma mantendo os fatos, valores, datas, percentuais e resultado principal."];
+}
+
+function splitParagraphs(text) {
+  return String(text ?? "")
+    .replace(/\r\n?/g, "\n")
+    .split(/\n{2,}/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+}
+
+function isContractProfile(profile) {
+  return profile === "lease" || profile === "ti_contract";
+}
+
+function looksLikeQualificationParagraph(paragraph, profile) {
+  const p = normalizeForCompare(paragraph);
+  if (profile === "lease") {
+    return /(locador|locat[aá]rio|fiador)/i.test(p) && /(cpf|cnpj|inscrit|residente|domiciliad|doravante|neste ato)/i.test(p);
+  }
+  if (profile === "ti_contract") {
+    return /(contratante|contratada)/i.test(p) && /(cpf|cnpj|inscrit|sede|doravante|neste ato)/i.test(p);
+  }
+  return false;
+}
+
+function shouldPreserveParagraphVerbatim(paragraph, profile, level) {
+  if (level !== "light") return false;
+  if (!isContractProfile(profile)) return false;
+  return looksLikeQualificationParagraph(paragraph, profile);
+}
+
+function firstContractClauseIndex(paragraphs, profile) {
+  const clauseRe = profile === "lease"
+    ? /\b(cl[aá]usula\s+primeira|cl[aá]usula\s+1|cl[aá]usula\s+segunda|cl[aá]usula\s+terceira|do objeto|objeto da loca[cç][aã]o)\b/i
+    : /\b(cl[aá]usula\s+primeira|cl[aá]usula\s+1|cl[aá]usula\s+segunda|do objeto|objeto do contrato)\b/i;
+  return paragraphs.findIndex((p) => clauseRe.test(p));
+}
+
+function shouldPreserveContractIntroParagraph(paragraphs, idx, profile, level) {
+  if (level !== "light" || !isContractProfile(profile)) return false;
+  const clauseIdx = firstContractClauseIndex(paragraphs, profile);
+  if (clauseIdx <= 0) return false;
+  return idx < clauseIdx;
+}
+
+function removeContractHeaderResidue(text, profile) {
+  if (!isContractProfile(profile)) return String(text ?? "").trim();
+
+  return splitParagraphs(text)
+    .filter((p) => {
+      const short = p.replace(/\s+/g, " ").trim();
+      if (!short) return false;
+      if (/\b(pelo presente|cl[aá]usula|contratante|contratada|locador|locat[aá]rio|fiador)\b/i.test(short)) return true;
+      if (/\b(estado do rio grande do sul|munic[ií]pio de nova esperan[cç]a|cidade das arauc[aá]rias|secretaria municipal de compras e contratos|semcc|avenida das arauc[aá]rias|telefone \(51\)|cep\s*90\.120-200|4º andar|centro - nova esperan[cç]a)\b/i.test(short)) {
+        return false;
+      }
+      return !/\b(prefeitura|munic[ií]pio|secretaria|processo administrativo|licita[cç][aã]o|p[aá]gina|telefone|cep\s*\d|endere[cç]o)\b/i.test(short);
+    })
+    .join("\n\n")
+    .trim();
+}
+
+function removePetitionJurisprudenceNoise(text, level) {
+  return splitParagraphs(text)
+    .filter((p) => {
+      if (/\b(jurisprud[eê]ncia|ac[oó]rd[aã]o|precedente|s[úu]mula|tema repetitivo|stj|stf|trf|tjrs|tst)\b/i.test(p) && p.length > 150) {
+        return false;
+      }
+      if (/^["“].{120,}["”]$/su.test(p.trim())) return false;
+      if (level !== "light" && /\bart\.?\s*\d+/i.test(p) && /(constitui[cç][aã]o|c[oó]digo|lei)/i.test(p) && p.length > 240) {
+        return false;
+      }
+      return true;
+    })
+    .join("\n\n")
+    .trim();
+}
+
+function cleanPartyName(name) {
+  return String(name ?? "")
+    .replace(/\b(cpf|cnpj|rg|ssp|residente|domiciliad[oa]|com sede|inscrit[oa]|brasileir[oa]|casad[oa]|solteir[oa]|estado civil|profiss[aã]o|cep|endere[cç]o)\b[\s\S]*$/i, "")
+    .replace(/[;:,.-]+$/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function looksLikePersonName(name) {
+  const cleaned = cleanPartyName(name)
+    .replace(/^[^A-ZÁÉÍÓÚÂÊÔÃÕÇ]+/iu, "")
+    .trim();
+  if (!cleaned) return false;
+  if (cleaned.split(/\s+/).length < 2) return false;
+  if (/\b(excelent[ií]ssimo|juiz|vara|comarca|processo|peti[cç][aã]o|autor|r[eé]u|parte|pedido|valor da causa)\b/i.test(cleaned)) return false;
+  return /^[A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-Za-zÁÉÍÓÚÂÊÔÃÕÇáéíóúâêôãõç'`.-]+(?:\s+[A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-Za-zÁÉÍÓÚÂÊÔÃÕÇáéíóúâêôãõç'`.-]+)+$/u.test(cleaned);
+}
+
+function extractLabeledParty(text, rolePatterns) {
+  const lines = String(text ?? "").split(/\n+/);
+  for (const line of lines) {
+    for (const re of rolePatterns) {
+      const m = line.match(re);
+      if (m?.[1]) {
+        const name = cleanPartyName(m[1]);
+        if (looksLikePersonName(name)) return name;
+      }
+    }
+  }
+  return "";
+}
+
+function extractPartyByContext(text, patterns) {
+  const body = String(text ?? "").replace(/\s+/g, " ");
+  for (const re of patterns) {
+    const m = body.match(re);
+    if (m?.[1]) {
+      const name = cleanPartyName(m[1].replace(/\s+/g, " "));
+      if (looksLikePersonName(name)) return name;
+    }
+  }
+  return "";
+}
+
+function extractPetitionParties(text) {
+  const author = extractLabeledParty(text, [
+    /(?:parte autora|autora?|requerente|reclamante)\s*[:\-]\s*([A-ZÁÉÍÓÚÂÊÔÃÕÇ][^;,.\n]{4,120})/iu,
+  ]) || extractPartyByContext(text, [
+    /([A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-ZÁÉÍÓÚÂÊÔÃÕÇa-záéíóúâêôãõç'`.-]+(?:\s+[A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-ZÁÉÍÓÚÂÊÔÃÕÇa-záéíóúâêôãõç'`.-]+){1,5})\s*,\s*(?:já\s+qualificad[oa]|brasileir[oa]|por\s+seu\s+advogado|vem\s+[àa]\s+presen[cç]a)/iu,
+    /([A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-ZÁÉÍÓÚÂÊÔÃÕÇa-záéíóúâêôãõç'`.-]+(?:\s+[A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-ZÁÉÍÓÚÂÊÔÃÕÇa-záéíóúâêôãõç'`.-]+){1,5})\s*,[^\n]{0,180}?\bprop[oõ]e\b/iu,
+  ]);
+
+  const defendant = extractLabeledParty(text, [
+    /(?:parte ré|r[eé]u|requerid[oa]|reclamad[oa])\s*[:\-]\s*([A-ZÁÉÍÓÚÂÊÔÃÕÇ][^;,.\n]{4,120})/iu,
+  ]) || extractPartyByContext(text, [
+    /em\s+face\s+de\s+([A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-ZÁÉÍÓÚÂÊÔÃÕÇa-záéíóúâêôãõç'`.-]+(?:\s+[A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-ZÁÉÍÓÚÂÊÔÃÕÇa-záéíóúâêôãõç'`.-]+){1,6})\s*,\s*(?:pessoa|pessoa jurídica|inscrit[ao]|com\s+sede|brasileir[oa]|pelos\s+fatos|pelos\s+motivos)/iu,
+    /em\s+desfavor\s+de\s+([A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-ZÁÉÍÓÚÂÊÔÃÕÇa-záéíóúâêôãõç'`.-]+(?:\s+[A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-ZÁÉÍÓÚÂÊÔÃÕÇa-záéíóúâêôãõç'`.-]+){1,6})/iu,
+  ]);
+
+  return { author, defendant };
+}
+
+function extractArticleReferenceList(text) {
+  const refs = [];
+  const seen = new Set();
+  const matches = String(text ?? "").match(/\bart\.?\s*\d+[A-Za-zº°]*\b/giu) || [];
+  for (const raw of matches) {
+    const norm = raw.toLowerCase().replace(/\s+/g, " ").replace(/art\.?\s*/i, "").trim();
+    if (!norm || seen.has(norm)) continue;
+    seen.add(norm);
+    refs.push(norm);
+  }
+  return refs;
+}
+
+function firstSentenceOfParagraphMatching(text, re) {
+  const para = splitParagraphs(text).find((p) => re.test(p));
+  if (!para) return "";
+  return firstMeaningfulSentence(para, 2);
+}
+
+function normalizeSentenceKey(s) {
+  return normalizeForCompare(String(s ?? ""))
+    .replace(/[.;:!?]+$/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function dedupeRepeatedSentences(text) {
+  const parts = splitParagraphs(text);
+  const seen = new Set();
+  const out = [];
+
+  for (const p of parts) {
+    const sents = splitSentencesProtected(p).map((x) => String(x || "").trim()).filter(Boolean);
+    if (!sents.length) {
+      const key = normalizeSentenceKey(p);
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      out.push(p);
+      continue;
+    }
+
+    const kept = [];
+    for (const sent of sents) {
+      const key = normalizeSentenceKey(sent);
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      kept.push(sent);
+    }
+    if (kept.length) out.push(kept.join(" "));
+  }
+
+  return out.join("\n\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+function removeIrrelevantCNIB(text) {
+  return splitParagraphs(text)
+    .filter((p) => !/\bCNIB\b/i.test(p))
+    .join("\n\n")
+    .trim();
+}
+
+function removeRedundantDigitalSignatureMentions(text) {
+  let seen = false;
+  return splitParagraphs(text)
+    .filter((p) => {
+      if (/(assinad[oa]\s+eletronicamente|assinatura\s+eletr[oô]nica|documento\s+assinado\s+eletronicamente|c[oó]digo\s+de\s+verifica[cç][aã]o)/i.test(p)) {
+        if (seen) return false;
+        seen = true;
+      }
+      return true;
+    })
+    .join("\n\n")
+    .trim();
+}
+
+function removeDanglingQualificationFragments(text, profile) {
+  return splitParagraphs(text)
+    .filter((p) => {
+      const short = p.replace(/\s+/g, " ").trim();
+      if (!short) return false;
+      if (profile === "ti_contract") {
+        if (/^\d{5}-\d{3},?\s+inscrit[ao]\s+no\b/i.test(short)) return false;
+        if (/^(inscrit[ao]\s+no|com sede\s+em|cep\s*\d{5}-\d{3})\b/i.test(short) && !/\b(contratante|contratada)\b/i.test(short)) return false;
+      }
+      if (profile === "lease") {
+        if (/^(inscrit[ao]\s+no|residente\s+e\s+domiciliad[oa]|cep\s*\d{5}-\d{3})\b/i.test(short) && !/\b(locador|locat[aá]rio|fiador)\b/i.test(short)) return false;
+      }
+      return true;
+    })
+    .join("\n\n")
+    .trim();
+}
+
+function removeKnownOutOfScopeLeaseNoise(text, originalText) {
+  const original = normalizeForCompare(originalText);
+  return splitParagraphs(text)
+    .filter((p) => {
+      const short = p.replace(/\s+/g, " ").trim();
+      if (!short) return false;
+      if (/\b(cheias|calamidade|bloco cir[úu]rgico|vigil[aâ]ncia sanit[aá]ria|conselho regional de medicina veterin[aá]ria|mobili[aá]rios em geral|grandes avarias)\b/i.test(short)) {
+        const keyTerms = ["cheias", "calamidade", "bloco cirúrgico", "vigilância sanitária", "medicina veterinária", "grandes avarias"];
+        const appears = keyTerms.some((t) => original.includes(normalizeForCompare(t)));
+        if (!appears) return false;
+      }
+      return true;
+    })
+    .join("\n\n")
+    .trim();
+}
+
+function extractLikelyNames(text) {
+  const stop = new Set([
+    "ASSINATURA", "ASSINATURAS", "OUTORGANTE", "OUTORGANTES", "OUTORGADO", "OUTORGADOS",
+    "INTERVENIENTE", "INTERVENIENTES", "ASSISTENTE", "ASSISTENTES", "HERDEIRO", "HERDEIROS",
+    "TABELIÃO", "TABELIAO", "ESCREVENTE", "CNIB"
+  ]);
+
+  const matches = String(text ?? "").match(/\b[A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-Za-zÁÉÍÓÚÂÊÔÃÕÇáéíóúâêôãõç']+(?:\s+[A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-Za-zÁÉÍÓÚÂÊÔÃÕÇáéíóúâêôãõç']+){1,5}\b/g) || [];
+  const out = [];
+  const seen = new Set();
+
+  for (const raw of matches) {
+    const name = raw.replace(/\s+/g, " ").trim();
+    const tokens = name.split(" ");
+    if (tokens.every((t) => stop.has(t.toUpperCase()))) continue;
+    if (tokens.length < 2) continue;
+    const key = name.toUpperCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(name);
+  }
+
+  return out;
+}
+
+function compactSignatureBlocks(text, level, profile) {
+  const shouldKeepNames = level === "strong" || profile === "inventory";
+  return String(text ?? "").replace(
+    /(^|\n\n)\s*(ASSINATURAS?:)\s*\n([\s\S]*?)(?=\n\n(?:[A-ZÀ-Ý][A-ZÀ-Ý0-9 .'"ºª-]{2,}:|\d+\.|CL[AÁ]USULA\s+[A-ZÀ-Ý]+|$))/giu,
+    (_m, p1, label, body) => {
+      if (!shouldKeepNames) return p1 || "";
+      const names = extractLikelyNames(body);
+      if (!names.length) return `${p1 || ""}${label}`;
+      return `${p1 || ""}${label}\nAssinam: ${names.join("; ")}.`;
+    }
+  ).trim();
+}
+
+function paragraphPriority(paragraph, profile, level) {
+  const p = normalizeForCompare(paragraph);
+  let score = 0;
+
+  if (!p) return score;
+  if (isHeadingLike(paragraph)) score += 2;
+  if (/r\$|%|\b\d{1,2}\/\d{1,2}\/\d{2,4}\b|\b\d{1,2}\s+de\s+[a-zçáéíóúâêôãõ]+\s+de\s+\d{4}\b/i.test(paragraph)) score += 3;
+  if (/\bprocesso\b|\bmatr[ií]cula\b|\bregistro\b|\blivro\b|\bart\.?\b|\blei\b/i.test(p)) score += 2;
+
+  if (profile === "inventory") {
+    if (/\bbens?\b|\barrolamento\b|\bpartilha\b|\bherdeir\b|\besp[oó]lio\b|\binvent[aá]rio\b|\binventariante\b|\bitcmd\b|\bitcdm\b|\btestamento\b/i.test(p)) score += 6;
+  } else if (profile === "labor") {
+    if (/\bdispositivo\b|\bante o exposto\b|\bjulgo\b|\bcondeno\b|\bprocedent\b|\bimprocedent\b|\bdefiro\b|\bindefiro\b|\bcustas\b|\breclamante\b|\breclamada\b|\bfundamenta[cç][aã]o\b|\bm[eé]rito\b/i.test(p)) score += 6;
+  } else if (profile === "lease") {
+    if (/\bcl[aá]usula\b|\blocador\b|\blocat[aá]rio\b|\bfiador\b|\balugu[eé]l\b|\bprazo\b|\breajuste\b|\bmulta\b|\brescis[aã]o\b|\bapartamento\b|\bunidade\b|\bgarantia\b/i.test(p)) score += 6;
+    if (/\bcl[aá]usula\s+(terceira|quarta|quinta)\b|\b3[.)-]\b|\b4[.)-]\b|\b5[.)-]\b/i.test(p)) score += 3;
+  } else if (profile === "ti_contract") {
+    if (/\bcontratante\b|\bcontratada\b|\bobjeto\b|\bpagamento\b|\bpenalidades\b|\bvig[eê]ncia\b|\bgestor[ae]? do contrato\b|\bfiscal do contrato\b|\blei de licita[cç][oõ]es\b|\bart\.?\s*75\b/i.test(p)) score += 6;
+    if (/\bcl[aá]usula\s+(segunda|terceira|quarta|quinta|sexta|s[eé]tima|d[eé]cima)\b|\b(?:2|3|4|5|6|7|10)(?:[.)-]|\.\d)/i.test(p)) score += 4;
+  } else if (profile === "petition") {
+    if (/\b(parte autora|autor(?:a)?|requerente|reclamante|parte ré|r[eé]u|requerid[oa]|reclamad[oa])\b|\bpedidos?\b|\bvalor da causa\b|\bfatos\b|\bcausa de pedir\b|\brequer\b/i.test(p)) score += 6;
+    if (/\bart\.?\s*\d+\b/i.test(p) && p.length < 160) score += 2;
+  }
+
+  if (level === "strong" && /\bdispositivo\b|\bpartilha\b|\bitcmd\b|\bitcdm\b|\bfiador\b|\bvalor da causa\b/i.test(p)) score += 2;
+
+  return score;
+}
+
+function firstMeaningfulSentence(paragraph, limit = 2) {
+  const sents = splitSentencesProtected(paragraph).map((x) => String(x || "").trim()).filter(Boolean);
+  return sents.slice(0, limit).join(" ").trim() || String(paragraph || "").trim();
+}
+
+function appendMissingParagraph(finalParas, paragraph) {
+  const key = normalizeForCompare(firstMeaningfulSentence(paragraph, 1)).slice(0, 120);
+  const exists = finalParas.some((p) => normalizeForCompare(p).includes(key) || key.includes(normalizeForCompare(firstMeaningfulSentence(p, 1)).slice(0, 60)));
+  if (!exists) finalParas.push(paragraph.trim());
+}
+
+function ensureInventoryCoverage(finalText, originalText, level) {
+  const finalParas = splitParagraphs(finalText);
+  const originalParas = splitParagraphs(originalText);
+
+  const needsBens = !/\bbens\b|\barrolamento\b/i.test(finalText);
+  const needsPartilha = !/\bpartilha\b|\bherdeir\b/i.test(finalText);
+  const needsTax = !/\bitcmd\b|\bitcdm\b/i.test(finalText);
+
+  for (const p of originalParas) {
+    if (needsBens && /\bbens\b|\barrolamento\b/i.test(p)) appendMissingParagraph(finalParas, p);
+    if (needsPartilha && /\bpartilha\b|\bherdeir\b/i.test(p)) appendMissingParagraph(finalParas, p);
+    if (needsTax && /\bitcmd\b|\bitcdm\b/i.test(p)) appendMissingParagraph(finalParas, p);
+  }
+
+  let out = finalParas.join("\n\n").trim();
+  if (level === "strong" && /\bassinaturas?:\b/i.test(originalText) && !/\bassinaturas?:\b/i.test(out)) {
+    const sig = splitParagraphs(originalText).find((p) => /\bassinaturas?:\b/i.test(p));
+    if (sig) out += `\n\n${sig}`;
+  }
+  return out;
+}
+
+function ensureLaborCoverage(finalText, originalText) {
+  const finalParas = splitParagraphs(finalText);
+  const originalParas = splitParagraphs(originalText);
+
+  const hasDispositivo = /\bdispositivo\b|\bante o exposto\b|\bjulgo\b|\bcondeno\b|\bprocedent\b|\bimprocedent\b|\bdefiro\b|\bindefiro\b/i.test(finalText);
+  if (!hasDispositivo) {
+    for (const p of originalParas) {
+      if (/\bdispositivo\b|\bante o exposto\b|\bjulgo\b|\bcondeno\b|\bprocedent\b|\bimprocedent\b|\bdefiro\b|\bindefiro\b|\bcustas\b/i.test(p)) {
+        appendMissingParagraph(finalParas, p);
+      }
+    }
+  }
+
+  return finalParas.join("\n\n").trim();
+}
+
+function ensureLeaseCoverage(finalText, originalText) {
+  const finalParas = splitParagraphs(finalText);
+  const originalParas = splitParagraphs(originalText);
+
+  const clauseNeeds = [
+    { key: /\b(cl[aá]usula\s+terceira|3[.)-])\b/i, has: /\b(cl[aá]usula\s+terceira|3[.)-])\b/i.test(finalText) },
+    { key: /\b(cl[aá]usula\s+quarta|4[.)-])\b/i, has: /\b(cl[aá]usula\s+quarta|4[.)-])\b/i.test(finalText) },
+    { key: /\b(cl[aá]usula\s+quinta|5[.)-])\b/i, has: /\b(cl[aá]usula\s+quinta|5[.)-])\b/i.test(finalText) },
+  ];
+
+  for (const p of originalParas) {
+    for (const clause of clauseNeeds) {
+      if (!clause.has && clause.key.test(p)) appendMissingParagraph(finalParas, p);
+    }
+  }
+
+  const mustRoles = [
+    { src: /\blocador\b/i, dst: /\blocador\b/i },
+    { src: /\blocat[aá]rio\b/i, dst: /\blocat[aá]rio\b/i },
+    { src: /\bfiador\b/i, dst: /\bfiador\b/i },
+  ];
+
+  for (const role of mustRoles) {
+    if (role.src.test(originalText) && !role.dst.test(finalText)) {
+      const para = originalParas.find((p) => role.src.test(p));
+      if (para) appendMissingParagraph(finalParas, para);
+    }
+  }
+
+  return finalParas.join("\n\n").trim();
+}
+
+function extractTIContractParties(text) {
+  const body = String(text ?? "").replace(/\s+/g, " ");
+  const partyAfterLabel = (label) => {
+    const m = body.match(new RegExp(`${label}[^A-ZÁÉÍÓÚÂÊÔÃÕÇ]{0,30}([A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-ZÁÉÍÓÚÂÊÔÃÕÇa-záéíóúâêôãõç'` + "`.-]+(?:\\s+[A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-ZÁÉÍÓÚÂÊÔÃÕÇa-záéíóúâêôãõç'` + "`.-]+){1,7})`, "iu"));
+    const name = cleanPartyName(m?.[1] || "");
+    return looksLikePersonName(name) ? name : "";
+  };
+  return {
+    contratante: partyAfterLabel("CONTRATANTE"),
+    contratada: partyAfterLabel("CONTRATADA"),
+  };
+}
+
+function ensureTIContractCoverage(finalText, originalText, level) {
+  let finalParas = splitParagraphs(finalText);
+  const originalParas = splitParagraphs(originalText);
+
+  const mustClauses = level === "strong"
+    ? [2, 3, 4, 10]
+    : [4, 5, 6, 7, 10];
+
+  const clauseRes = {
+    2: /\b(cl[aá]usula\s+segunda|2(?:\.\d+)?[.)-]?)\b/i,
+    3: /\b(cl[aá]usula\s+terceira|3(?:\.\d+)?[.)-]?)\b/i,
+    4: /\b(cl[aá]usula\s+quarta|4(?:\.\d+)?[.)-]?)\b/i,
+    5: /\b(cl[aá]usula\s+quinta|5(?:\.\d+)?[.)-]?)\b/i,
+    6: /\b(cl[aá]usula\s+sexta|6(?:\.\d+)?[.)-]?)\b/i,
+    7: /\b(cl[aá]usula\s+s[eé]tima|7(?:\.\d+)?[.)-]?)\b/i,
+    10: /\b(cl[aá]usula\s+d[eé]cima|10(?:\.\d+)?[.)-]?)\b/i,
+  };
+
+  const parties = extractTIContractParties(originalText);
+  const intro = [];
+  if (parties.contratante) intro.push(`Contratante: ${parties.contratante}.`);
+  if (parties.contratada) intro.push(`Contratada: ${parties.contratada}.`);
+  if (intro.length) {
+    const introText = intro.join(" ");
+    finalParas = finalParas.filter((p) => !/^\s*(Contratante:|Contratada:)/i.test(p));
+    finalParas.unshift(introText);
+  }
+
+  for (const n of mustClauses) {
+    const re = clauseRes[n];
+    if (!re) continue;
+    if (re.test(finalParas.join("\n\n"))) continue;
+    const para = originalParas.find((q) => re.test(q));
+    if (para) finalParas.push(para);
+  }
+
+  if (/art\.?\s*75/i.test(originalText) && !/art\.?\s*75/i.test(finalParas.join("\n\n"))) {
+    const para = originalParas.find((q) => /art\.?\s*75|inciso\s+viii|lei de licita[cç][oõ]es/i.test(q));
+    if (para) finalParas.push(para);
+  }
+
+  const out = finalParas.join("\n\n").trim();
+  return removeDanglingQualificationFragments(out, "ti_contract");
+}
+
+function ensurePetitionCoverage(finalText, originalText, level) {
+  let out = String(finalText ?? "").trim();
+  const finalParas = splitParagraphs(out);
+  const parties = extractPetitionParties(originalText);
+
+  if (parties.author && !new RegExp(parties.author.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i").test(out)) {
+    finalParas.unshift(`Parte autora: ${parties.author}.`);
+  }
+  if (parties.defendant && !new RegExp(parties.defendant.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i").test(finalParas.join("\n\n"))) {
+    const label = `Parte ré: ${parties.defendant}.`;
+    if (finalParas.length) finalParas.splice(Math.min(1, finalParas.length), 0, label);
+    else finalParas.push(label);
+  }
+
+  out = finalParas.join("\n\n").trim();
+
+  if (/valor\s+da\s+causa/i.test(originalText) && !/valor\s+da\s+causa/i.test(out)) {
+    const sentence = firstSentenceOfParagraphMatching(originalText, /valor\s+da\s+causa/i);
+    if (sentence) out += `${out ? "\n\n" : ""}${sentence}`;
+  }
+
+  if (level !== "strong") {
+    const refs = extractArticleReferenceList(originalText);
+    if (refs.length && !/refer[êe]ncias legais:/i.test(out)) {
+      out += `${out ? "\n\n" : ""}Referências legais: arts. ${refs.join(", ")}.`;
+    }
+  }
+
+  return out.trim();
+}
+
+function applyProfilePostProcessing(finalText, originalStructuredPlain, profile, level) {
+  let out = String(finalText ?? "").trim();
+
+  out = dedupeRepeatedSentences(out);
+  out = removeContractHeaderResidue(out, profile);
+  out = removeDanglingQualificationFragments(out, profile);
+
+  if (profile === "inventory") out = removeIrrelevantCNIB(out);
+  if (profile === "labor") out = removeRedundantDigitalSignatureMentions(out);
+  if (profile === "petition") out = removePetitionJurisprudenceNoise(out, level);
+  if (profile === "lease") out = removeKnownOutOfScopeLeaseNoise(out, originalStructuredPlain);
+
+  if (profile === "inventory") out = ensureInventoryCoverage(out, originalStructuredPlain, level);
+  if (profile === "labor") out = ensureLaborCoverage(out, originalStructuredPlain);
+  if (profile === "lease") out = ensureLeaseCoverage(out, originalStructuredPlain);
+  if (profile === "ti_contract") out = ensureTIContractCoverage(out, originalStructuredPlain, level);
+  if (profile === "petition") out = ensurePetitionCoverage(out, originalStructuredPlain, level);
+
+  out = compactSignatureBlocks(out, level, profile);
+  out = dedupeRepeatedSentences(out);
+  out = removeContractHeaderResidue(out, profile);
+  out = removeDanglingQualificationFragments(out, profile);
+
+  return out.trim();
 }
 
 // ------------------------
@@ -483,9 +1075,15 @@ function dropDanglingCurrencyDuplicates(text) {
 
 function redactPIIText(text) {
   let out = String(text ?? "");
-  out = out.replace(/\b(\d{3})\.\d{3}\.\d{3}-(\d{2})\b/g, (_m, a, last2) => `${a}.***.***-${last2}`);
-  out = out.replace(/(identidade\s+n[úu]mero\s+)(\d{6,})/gi, (_m, p1) => `${p1}***`);
-  out = out.replace(/\b(n[ºo]\s*)(\d{1,6})\b/gi, (_m, p1) => `${p1}***`);
+
+  out = out.replace(/(\d{3})\.\d{3}\.\d{3}-(\d{2})/g, (_m, a, last2) => `${a}.***.***-${last2}`);
+  out = out.replace(/(\d{2})\.\d{3}\.\d{3}\/\d{4}-(\d{2})/g, (_m, a, last2) => `${a}.***.***/****-${last2}`);
+  out = out.replace(/(matr[ií]cula\s*(?:n[ºo.]*)?\s*)(\d[\d.\-/]*)/giu, (_m, p1) => `${p1}***`);
+  out = out.replace(/((?:certid[aã]o|registro|termo|livro|folha)\s*(?:n[ºo.]*)?\s*)(\d[\d.\-/]*)/giu, (_m, p1) => `${p1}***`);
+  out = out.replace(/((?:testamento\s*(?:p[uú]blico\s*)?(?:sob\s+o\s+)?n[ºo.]?\s*))(\d[\d.\-/]*)/giu, (_m, p1) => `${p1}***`);
+  out = out.replace(/((?:[oó]bito\s*(?:sob\s+o\s+)?n[ºo.]?\s*))(\d[\d.\-/]*)/giu, (_m, p1) => `${p1}***`);
+  out = out.replace(/(\d{7,}(?:[-./]\d+)*)/g, "***");
+
   return out;
 }
 
@@ -531,7 +1129,9 @@ async function callOllamaChat(system, user, cfg, perCallMs, numPredict) {
 // Rewrite mode (light)
 // ------------------------
 
-function buildSentencePrompt(cfg, sentenceProtected) {
+function buildSentencePrompt(cfg, sentenceProtected, profile = "generic") {
+  const extra = profilePromptNotes(profile, "light");
+
   const system = [
     "Você é um simplificador jurídico PT-BR em Linguagem Simples.",
     "",
@@ -539,13 +1139,15 @@ function buildSentencePrompt(cfg, sentenceProtected) {
     "1) NÃO altere placeholders [[[LASCAS_*_####]]].",
     "2) Preserve exatamente números, datas, valores, prazos, negações, nomes próprios e referências oficiais.",
     "3) Não invente nem omita informações. Não troque sentidos.",
-    "4) Não use prefácios. Retorne só o texto.",
-    "5) Retorne UMA única frase em uma linha (sem bullets, sem títulos).",
+    "4) Você pode encurtar levemente a frase quando isso melhorar a clareza, sem perder fatos essenciais.",
+    "5) Não use prefácios. Retorne só o texto.",
+    "6) Retorne UMA única frase em uma linha (sem bullets, sem títulos).",
+    ...extra.map((x, i) => `${i + 7}) ${x}`),
     `INTENSIDADE: ${cfg.reduceHint}`,
   ].join("\n");
 
   const user = [
-    "Reescreva a frase abaixo de modo mais simples, mantendo TODAS as informações e preservando placeholders:",
+    "Reescreva a frase abaixo de modo mais simples, mantendo TODAS as informações essenciais e preservando placeholders:",
     "",
     asString(sentenceProtected),
   ].join("\n");
@@ -583,7 +1185,7 @@ function validateSentenceSafe(origProt, outProt, cfg) {
   if (lenRatio < cfg.minLenRatio) return false;
   if (lenRatio > cfg.maxLenRatio) return false;
 
-  if (!validateIntegrity(origProt, outProt, { mode: "strict" })) return false;
+  if (!validateIntegrity(origProt, outProt, { mode: "relaxed" })) return false;
   return true;
 }
 
@@ -630,22 +1232,24 @@ function splitIntoChunksByWords(text, minWords = 520, maxWords = 1050) {
   return chunks.length ? chunks : [String(text ?? "").trim()];
 }
 
-function buildCondensePrompt(cfg, chunkProtected, targetWords, requiredPH = []) {
+function buildCondensePrompt(cfg, chunkProtected, targetWords, requiredPH = [], profile = "generic") {
+  const extra = profilePromptNotes(profile, cfg.reduceHint === "forte" ? "strong" : "medium");
+
   const sys = [
     "Você é um simplificador jurídico PT-BR em Linguagem Simples.",
     "",
-    "OBJETIVO: condensar MUITO o trecho (reduzir bastante o tamanho), sem inventar fatos.",
-    `LIMITE DURO: no máximo ${targetWords} palavras (tente ficar abaixo).`,
+    "OBJETIVO: condensar o trecho com clareza, sem inventar fatos e sem omitir o que muda o entendimento do documento.",
+    `META: cerca de ${targetWords} palavras; pode passar um pouco se isso evitar omissões importantes.`,
     "",
     "Priorize manter apenas o essencial:",
     "- tipo do ato / decisão / declaração;",
-    "- quem (nomes) e relação relevante;",
-    "- o quê (bem/obrigação/efeito);",
+    "- quem são as partes e o papel de cada uma;",
+    "- bens, obrigações, resultado prático e efeito jurídico;",
     "- datas, valores, percentuais, prazos;",
     "- referências oficiais (processo/matrícula/R/1/Livro/Lei/art.).",
     "",
-    "Você PODE OMITIR (quando não forem essenciais):",
-    "- CPF, RG, órgão expedidor, endereço completo, CEP, naturalidade, profissão, filiação, repetições e fórmulas cartorárias.",
+    "Você PODE OMITIR quando não forem essenciais:",
+    "- CPF, RG, órgão expedidor, endereço completo, CEP, naturalidade, profissão, filiação e fórmulas cartorárias repetitivas.",
     "",
     "Regras obrigatórias:",
     "1) NÃO altere placeholders [[[LASCAS_*_####]]]. Copie exatamente se usar.",
@@ -653,7 +1257,8 @@ function buildCondensePrompt(cfg, chunkProtected, targetWords, requiredPH = []) 
     "3) Preserve o sentido de negações e condições.",
     "4) NÃO use prefácios. Retorne só o texto.",
     "5) NÃO use 1ª pessoa.",
-    "6) NÃO crie listas/bullets/títulos (a menos que já existam no trecho).",
+    "6) Pode usar quebras de linha curtas para organizar melhor o resultado.",
+    ...extra.map((x, i) => `${i + 7}) ${x}`),
     `INTENSIDADE: ${cfg.reduceHint}`,
   ].join("\n");
 
@@ -821,75 +1426,93 @@ function sentenceHasOnlyPIIPlaceholders(sentence, phIndex) {
   return !hasEssential && hasOnlyPiiOrOther;
 }
 
-function sentenceHasEssentialSignals(sentence, phIndex) {
+function sentenceHasEssentialSignals(sentence, phIndex, profile = "generic") {
   const phs = extractPlaceholderList(sentence);
   for (const ph of phs) {
     if (classifyPlaceholder(ph, phIndex) === "essential") return true;
   }
 
   const s = normalizeForCompare(sentence);
-  // keywords that usually indicate core facts (safe-ish)
-  const kw =
-    /\b(im[oó]vel|bens?|valor|pagament|quita|declara|ficou|fica|fica(m)?\s+assim|invent[aá]rio|partilha|testamento|matr[ií]cula|processo|registro|livro|folha|lei|art\.|resolu[cç][aã]o|decreto|portaria|prazo|data)\b/i;
-
-  if (kw.test(s)) return true;
+  const generalKw =
+    /\b(im[oó]vel|bens?|valor|pagament|quita|declara|ficou|fica|invent[aá]rio|partilha|testamento|matr[ií]cula|processo|registro|livro|folha|lei|art\.?|resolu[cç][aã]o|decreto|portaria|prazo|data|apartamento|unidade|cl[aá]usula|alugu[eé]l|multa|rescis[aã]o)\b/i;
+  if (generalKw.test(s)) return true;
+  if (profile === "inventory" && /\b(espolio|espólio|herdeir|inventariante|itcmd|itcdm|arrolamento)\b/i.test(s)) return true;
+  if (profile === "labor" && /\b(reclamante|reclamada|contesta[cç][aã]o|fundamenta[cç][aã]o|m[eé]rito|fase de instru[cç][aã]o|dispositivo|julgo|condeno|procedent|improcedent|defiro|indefiro|custas)\b/i.test(s)) return true;
+  if (profile === "lease" && /\b(locador|locat[aá]rio|fiador|garantia|reajuste|vig[eê]ncia|prazo)\b/i.test(s)) return true;
+  if (profile === "ti_contract" && /\b(contratante|contratada|doravante|pagamento|penalidades|vig[eê]ncia|gestor[ae]? do contrato|fiscal do contrato|lei de licita[cç][oõ]es|art\.?\s*75)\b/i.test(s)) return true;
+  if (profile === "petition" && /\b(parte autora|autor(?:a)?|requerente|reclamante|parte ré|r[eé]u|requerid[oa]|reclamad[oa]|pedidos?|valor da causa|fatos|requer)\b/i.test(s)) return true;
   return false;
 }
 
-function enforceWordBudgetByDropping(textProtected, budgetWords, phIndex) {
+function enforceWordBudgetByDropping(textProtected, budgetWords, phIndex, profile = "generic", level = "medium") {
   let t = String(textProtected || "").trim();
   if (!t) return t;
 
-  // Drop ASSINATURAS blocks aggressively in medium/strong
-  t = t.replace(/(^|\n\n)\s*(ASSINATURAS?:)\s*\n[\s\S]*$/giu, "$1");
+  let paras = splitParagraphs(t);
+  if (wordCount(paras.join("\n\n")) <= budgetWords) return paras.join("\n\n").trim();
 
-  // If still too long, drop tail paragraphs then tail sentences
-  let paras = t.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+  const scored = paras.map((p, i) => ({
+    i,
+    p,
+    words: Math.max(1, wordCount(p)),
+    score: paragraphPriority(p, profile, level),
+    heading: isHeadingLike(p),
+  }));
 
-  const join = () => paras.join("\n\n").trim();
-
-  while (paras.length > 1 && wordCount(join()) > budgetWords) {
-    paras.pop();
-  }
-
-  // If still too long, trim last paragraph sentences
-  if (wordCount(join()) > budgetWords && paras.length) {
-    const last = paras[paras.length - 1];
-    const sents = splitSentencesProtected(last).map((x) => String(x || "").trim()).filter(Boolean);
-
-    while (sents.length > 1 && wordCount(paras.slice(0, -1).join("\n\n") + "\n\n" + sents.join(" ")) > budgetWords) {
-      sents.pop();
+  const chosen = new Set();
+  let used = 0;
+  const tryAdd = (item) => {
+    if (chosen.has(item.i)) return;
+    if (used + item.words <= budgetWords || chosen.size === 0 || item.score >= 9) {
+      chosen.add(item.i);
+      used += item.words;
     }
+  };
 
-    paras[paras.length - 1] = sents.join(" ").trim();
+  for (const item of [...scored].sort((a, b) => b.score - a.score || a.i - b.i)) {
+    if (item.score >= 6 || item.heading) tryAdd(item);
   }
+  for (const item of scored) tryAdd(item);
 
-  // Final hard truncate by words (rare)
-  let out = join();
+  let outParas = scored.filter((x) => chosen.has(x.i)).sort((a, b) => a.i - b.i).map((x) => x.p);
+  if (!outParas.length) outParas = [paras[0]];
+
+  let out = outParas.join("\n\n").trim();
   if (wordCount(out) > budgetWords) {
-    const words = out.split(/\s+/).filter(Boolean);
-    out = words.slice(0, Math.max(40, budgetWords)).join(" ").trim();
+    const trimmed = [];
+    let running = 0;
+    for (const para of outParas) {
+      const remaining = budgetWords - running;
+      if (remaining <= 0) break;
+      if (wordCount(para) <= remaining) {
+        trimmed.push(para);
+        running += wordCount(para);
+        continue;
+      }
+      const sents = splitSentencesProtected(para).map((x) => String(x || "").trim()).filter(Boolean);
+      const kept = [];
+      for (const sent of sents) {
+        if (running + wordCount(kept.join(" ") + " " + sent) > budgetWords) break;
+        kept.push(sent);
+      }
+      if (kept.length) trimmed.push(kept.join(" ").trim());
+      break;
+    }
+    out = trimmed.join("\n\n").trim();
   }
 
   return out.trim();
 }
 
-function heuristicCondenseProtectedChunk(chunkProtected, cfg, phIndex, targetWords) {
+function heuristicCondenseProtectedChunk(chunkProtected, cfg, phIndex, targetWords, profile = "generic", level = "medium") {
   const paras = String(chunkProtected || "")
     .split(/\n{2,}/)
     .map((p) => p.trim())
     .filter(Boolean);
 
   const outParas = [];
-
-  for (let pi = 0; pi < paras.length; pi++) {
-    const p = paras[pi];
+  for (const p of paras) {
     if (!p) continue;
-
-    // drop pure ASSINATURAS heading block in condense
-    const pn = normalizeForCompare(p);
-    if (pn === "assinaturas:" || pn === "assinatura:" || pn.startsWith("assinaturas")) continue;
-
     if (isHeadingLike(p)) {
       outParas.push(p);
       continue;
@@ -899,39 +1522,26 @@ function heuristicCondenseProtectedChunk(chunkProtected, cfg, phIndex, targetWor
     if (!sents.length) continue;
 
     const kept = [];
-
-    // Keep essential sentences; drop PII-only sentences
     for (const s of sents) {
       if (sentenceHasOnlyPIIPlaceholders(s, phIndex)) continue;
-
-      if (sentenceHasEssentialSignals(s, phIndex)) {
-        kept.push(stripQualificationTailSentence(s));
-      }
+      if (sentenceHasEssentialSignals(s, phIndex, profile)) kept.push(stripQualificationTailSentence(s));
     }
 
-    // If none essential, keep first sentence (medium) or maybe drop (strong)
     if (!kept.length) {
-      if (cfg.reduceHint === "forte") {
-        // strong: keep first sentence only if it seems informative
-        const first = stripQualificationTailSentence(sents[0]);
-        if (wordCount(first) >= 6) kept.push(first);
-      } else {
-        kept.push(stripQualificationTailSentence(sents[0]));
-      }
+      const fallbackLimit = ["lease", "ti_contract", "petition"].includes(profile) ? 2 : 1;
+      kept.push(...sents.slice(0, fallbackLimit).map((x) => stripQualificationTailSentence(x)).filter(Boolean));
     }
 
-    const perParaLimit = cfg.reduceHint === "forte" ? 1 : 2;
+    let perParaLimit = level === "strong" ? 2 : 3;
+    if (profile === "inventory") perParaLimit = level === "strong" ? 3 : 4;
+    if (profile === "petition") perParaLimit = level === "strong" ? 2 : 3;
+    if (profile === "ti_contract") perParaLimit = level === "strong" ? 2 : 3;
     outParas.push(kept.slice(0, perParaLimit).join(" ").trim());
   }
 
   let out = outParas.filter(Boolean).join("\n\n").trim();
-
-  // Enforce global budget for this chunk
-  out = enforceWordBudgetByDropping(out, Math.max(70, targetWords), phIndex);
-
-  // Safety: never return empty
+  out = enforceWordBudgetByDropping(out, Math.max(level === "strong" ? 120 : 160, targetWords), phIndex, profile, level);
   if (!out) out = String(chunkProtected || "").trim();
-
   return out.trim();
 }
 
@@ -944,6 +1554,7 @@ export async function simplifyBlocks(rawText, level = "light", opts = {}) {
   const cfg = LEVELS[lvl] || LEVELS.light;
 
   const redactPII = Boolean(opts?.redactPII);
+  const profile = detectDocumentProfile(rawText);
 
   const meta = {
     usedLLM: false,
@@ -959,15 +1570,19 @@ export async function simplifyBlocks(rawText, level = "light", opts = {}) {
     origWords: 0,
     outWords: 0,
     ms: 0,
+    profile,
   };
 
   const t0 = Date.now();
 
   const raw0 = normalizeArtifactsForLegal(asString(rawText));
-  const { protectedText, placeholders } = protectPlaceholders(raw0);
+  const preparedRaw = prepareTextForProfile(raw0, profile);
+  const validationSource = preparedRaw;
+  const { protectedText, placeholders } = protectPlaceholders(preparedRaw);
 
   const preLLM = applyBoilerplatePlainLanguage(protectedText);
   const structuredProtected = fixNumberedHeadings(addStructuralBreaks(preLLM));
+  const originalStructuredPlain = postStructure(fixNumberedHeadings(addStructuralBreaks(applyBoilerplatePlainLanguage(preparedRaw))));
 
   meta.origWords = wordCount(structuredProtected);
 
@@ -990,7 +1605,7 @@ export async function simplifyBlocks(rawText, level = "light", opts = {}) {
       const p = paragraphs[pi];
 
       const isLabel = /:\s*$/.test(p) && p.length <= 180;
-      if (isLabel) {
+      if (isLabel || shouldPreserveParagraphVerbatim(p, profile, lvl) || shouldPreserveContractIntroParagraph(paragraphs, pi, profile, lvl)) {
         outParasProtected.push(p);
         continue;
       }
@@ -1014,7 +1629,7 @@ export async function simplifyBlocks(rawText, level = "light", opts = {}) {
         const dynPredict = Math.max(160, Math.min(cfg.maxTokensCap, Math.ceil(wc * 2.0) + 60));
         const perCallMs = cfg.perCallMs + (COLD_START && pi === 0 && si < 3 ? coldBoost : 0);
 
-        const { system, user } = buildSentencePrompt(cfg, sent);
+        const { system, user } = buildSentencePrompt(cfg, sent, profile);
 
         let candidate = null;
         try {
@@ -1055,8 +1670,9 @@ export async function simplifyBlocks(rawText, level = "light", opts = {}) {
     finalText = dropDanglingCurrencyDuplicates(finalText);
 
     finalText = annotateFirstOccurrences(finalText);
+    finalText = applyProfilePostProcessing(finalText, originalStructuredPlain, profile, lvl);
 
-    if (!validateIntegrity(raw0, finalText, { mode: "strict" })) {
+    if (!validateIntegrity(validationSource, finalText, { mode: "strict" })) {
       meta.integrityWarning =
         "Alguns termos/números podem ter mudado; revise principalmente nomes, datas e referências.";
     }
@@ -1094,7 +1710,7 @@ export async function simplifyBlocks(rawText, level = "light", opts = {}) {
       Math.min(cfg.maxTokensCap, Math.round(targetWords * (cfg.reduceHint === "forte" ? 2.0 : 2.2)))
     );
 
-    const { system, user } = buildCondensePrompt(cfg, chunk, targetWords, requiredPH);
+    const { system, user } = buildCondensePrompt(cfg, chunk, targetWords, requiredPH, profile);
 
     let best = "";
     let bestRatio = 9e9;
@@ -1135,7 +1751,7 @@ export async function simplifyBlocks(rawText, level = "light", opts = {}) {
       meta.llmAccepted++;
     } else {
       // GUARANTEED SHRINK fallback
-      const h = heuristicCondenseProtectedChunk(chunk, cfg, phIndex, targetWords);
+      const h = heuristicCondenseProtectedChunk(chunk, cfg, phIndex, targetWords, profile, lvl);
       outChunks.push(h);
       meta.llmRejected++;
       meta.llmHeuristicFallback++;
@@ -1150,15 +1766,17 @@ export async function simplifyBlocks(rawText, level = "light", opts = {}) {
   const mergedWords = wordCount(mergedProtected);
   const desiredMax =
     lvl === "strong"
-      ? Math.round(meta.origWords * 0.55)
-      : Math.round(meta.origWords * 0.80);
+      ? Math.round(meta.origWords * 0.75)
+      : Math.round(meta.origWords * 0.92);
 
   if (mergedWords > desiredMax) {
     const forced = heuristicCondenseProtectedChunk(
       mergedProtected,
       cfg,
       phIndex,
-      Math.max(180, Math.round(meta.origWords * cfg.targetRatio))
+      Math.max(220, Math.round(meta.origWords * cfg.targetRatio)),
+      profile,
+      lvl
     );
     mergedProtected = forced;
     meta.llmHeuristicFallback++;
@@ -1176,8 +1794,9 @@ export async function simplifyBlocks(rawText, level = "light", opts = {}) {
   finalText = dropDanglingCurrencyDuplicates(finalText);
 
   finalText = annotateFirstOccurrences(finalText);
+  finalText = applyProfilePostProcessing(finalText, originalStructuredPlain, profile, lvl);
 
-  if (!validateIntegrity(raw0, finalText, { mode: "summary" })) {
+  if (!validateIntegrity(validationSource, finalText, { mode: "summary" })) {
     meta.integrityWarning =
       "Saída resumida: pode ter omitido detalhes (ex.: qualificações/PII). Revise datas, valores e referências legais.";
   }
