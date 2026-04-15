@@ -543,9 +543,234 @@ For an optional SUS‐style composite (0–100), we linearly rescale the summed 
 \item \textit{Outputs and Reporting:} We present: (i) construct means for PEOU, Learnability, PU, Performance, and BI; (ii) the optional SUS‐style composite (0–100); (iii) the proportion of responses flagged by the inconsistency check; and (iv) key themes from the open‐ended answers. This structure aligns with recent integrated SUS+TAM evaluations in educational and productivity technologies.
 \end{itemize}
 
+
+
 \section{Results and Discussion}
 
+This section presents the empirical results obtained with LASCAS and discusses them in light of the goals established in Sections~4 and~5. Rather than treating evaluation as a purely benchmark-driven exercise, this work adopted an applied and iterative validation strategy centered on \emph{real legal documents}, \emph{human perception}, and \emph{cognitive accessibility}. This framing is coherent with the practical character of the prototype and with the data-scarcity problem already identified in related work on legal simplification \cite{garimella2022insights, alves2023automatic, athugodage2024transfer}.
+
+\subsection{Evaluation Scope and Rationale}
+
+The empirical stage was organized in two complementary moments. First, a formative pre-test was conducted with three participants from the legal domain using three public legal files that were anonymized for the study. This smaller round had an exploratory role: it helped verify whether the prototype had reached a satisfactory maturity threshold for a broader trial, identify which failure modes still required attention, and define a feasible evaluation format. A key outcome of this pre-test was the decision to adopt the \texttt{medium} simplification level in the larger study, since it offered the best balance between readability gain, semantic preservation, and task duration.
+
+Second, a broader attitudinal evaluation was conducted with the questionnaire described in Section~5. In this stage, each participant assessed \emph{one} legal document simplified at the \texttt{medium} level. This decision intentionally reduced reading burden and kept the session short enough to avoid fatigue, while still allowing participants to compare the original and simplified versions with adequate attention. Table~\ref{tab:eval-scope} summarizes the evaluation scope.
+
+\begin{table}[H]
+\centering
+\caption{Evaluation stages and rationale adopted in this study.}
+\label{tab:eval-scope}
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.4cm} >{\raggedright\arraybackslash}p{2.8cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{1.8cm} >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Stage} & \textbf{Primary goal} & \textbf{Material} & \textbf{Participants} & \textbf{Main outcome} \\
+\midrule
+Formative pre-test & Calibrate the prototype before broader exposure & 3 public legal documents, anonymized for the study; additional real files used internally during development. & 3 (legal domain) & Selection of the \texttt{medium} level as the best overall trade-off; refinement of prompts, glossary behavior, and document-handling heuristics. \\
+\addlinespace[2pt]
+Broader questionnaire study & Measure perceived usability, usefulness, and adoption potential & 1 anonymized document per participant, presented in original and medium-simplified form. & 30 & Quantitative SUS/TAM-style evidence plus open-ended feedback on strengths and improvement opportunities. \\
+\bottomrule
+\end{tabularx}
+\tablesource{prepared by the author (2026)}
+\end{table}
+
+It is important to stress that the number of publicly shareable files was intentionally limited. During development, more than ten real legal files were used to stress the extraction, preprocessing, validation, and simplification pipeline; however, only three public documents could be kept fully available in a reproducible way for download and inspection. In the legal domain, there is still no broadly accepted benchmark composed of \emph{full} original legal documents paired with validated simplified counterparts. For this reason, the evaluation strategy privileged ecological validity: authentic documents, anonymization, and iterative feedback from people familiar with legal practice.
+
+This also helps explain why development was not pushed indefinitely beyond the current point. Going much further with targeted refinements would start steering the solution toward the specific test files, undermining the generic orientation of the system. Since a central design decision of LASCAS is to remain \emph{generalist}, the prototype was considered sufficiently mature for this stage once it reached stable behavior across heterogeneous documents and once the pre-test indicated that the medium level was already producing a satisfactory balance between condensation and preservation.
+
+\subsection{Participant Profile}
+
+The broader questionnaire stage included 30 respondents. The sample was intentionally heterogeneous in relation to legal background, with perfect balance between participants from the legal area (\textit{n} = 15) and participants from outside the legal area (\textit{n} = 15). In terms of formal education, 22 participants reported completed higher education and 8 reported completed high school. Figure~\ref{fig:participant-profile} summarizes this profile.
+
+\begin{figure}[H]
+  \centering
+  \caption{Participant profile in the broader questionnaire stage.}
+  \label{fig:participant-profile}
+  \includegraphics[width=.82\linewidth]{images/participant_profile.pdf}
+  \figsource{prepared by the author from the questionnaire data (2026)}
+\end{figure}
+
+This composition is relevant because it brings together two audiences that matter for the problem addressed here. Participants with legal-domain familiarity help indicate whether the simplified output remains dependable as an initial reading aid, while non-specialists help show whether the system actually lowers the entry barrier created by legal language. For a tool whose purpose is to improve accessibility, positive feedback distributed across both groups is more meaningful than approval restricted to expert users alone.
+
+\subsection{Quantitative Results}
+
+The quantitative results show a consistently favorable pattern across different dimensions of use. As defined in Section~5, negative items were reverse-scored before construct calculation, and the data were examined both at construct level and at item level. Taken together, the results indicate that the prototype was perceived as easy to use, useful for initial reading of legal texts, and plausible as support for comprehension and triage tasks.
+
+\subsubsection{Construct-level outcomes}
+
+Table~\ref{tab:construct-results} presents the descriptive statistics by construct. On the 1--5 scale, the highest means were observed for Perceived Ease of Use and Learnability (both 4.68), followed by Performance (4.65) and Perceived Usefulness (4.63). Behavioral Intention was the lowest-scoring construct (4.43), but it still remained clearly favorable, with 86.7\% of respondents at or above 4.0.
+
+\begin{table}[H]\centering
+\caption{Construct-level scores in the broader questionnaire stage.}
+\label{tab:construct-results}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Construct} & \textbf{Mean} & \textbf{SD} & \textbf{Median} & \textbf{Favorable (\% $\geq$ 4)} \\
+\midrule
+PEOU & 4.68 & 0.40 & 5.0 & 96.7 \\
+Learnability & 4.68 & 0.38 & 5.0 & 100.0 \\
+Performance & 4.65 & 0.53 & 5.0 & 96.7 \\
+PU & 4.63 & 0.54 & 5.0 & 93.3 \\
+BI & 4.43 & 0.65 & 4.5 & 86.7 \\
+\bottomrule
+\end{tabular}
+\tablesource{prepared by the author from the questionnaire data (2026)}
+\end{table}
+
+These construct means concentrate in the upper range of the scale, suggesting that the prototype was not merely considered promising in the abstract. It was already perceived as understandable, learnable, and useful in a concrete task involving legal documents. For an accessibility-oriented system, this matters because a simplified output has limited value if the interaction required to obtain it becomes a new source of friction.
+
+The overall SUS-style composite reinforces this interpretation. After linearly rescaling the ten reverse-aligned items, the instrument reached a mean of 90.4/100 ($SD = 9.8$), with median 92.5 and interquartile range from 87.5 to 97.5. In practical terms, this is a strong result for a local-first academic prototype. Moreover, 86.7\% of participants scored the experience at 80 or above, and 63.3\% scored it at 90 or above. Figure~\ref{fig:sus-distribution} shows the distribution.
+
+\begin{figure}[H]
+  \centering
+  \caption{Distribution of the SUS-style composite (0--100).}
+  \label{fig:sus-distribution}
+  \includegraphics[width=.82\linewidth]{images/sus_distribution.pdf}
+  \figsource{prepared by the author from the questionnaire data (2026)}
+\end{figure}
+
+The quality checks described in Section~5 also support a cautious but positive reading of the dataset. Only 2 respondents (6.7\%) triggered at least one inconsistency flag above the adopted threshold. Since these flags were not used for exclusion, the analysis remains conservative. At the same time, the low flagged proportion indicates that the questionnaire was completed with reasonable coherence, which increases confidence in the descriptive interpretation of the results. Full-scale internal consistency was also good ($\alpha = 0.832$). Pairwise construct reliabilities should be interpreted carefully because each construct was measured with only two items and the response distribution shows a visible ceiling effect; even so, the pattern is informative and especially favorable for the Performance pair ($\alpha = 0.784$).
+
+\subsubsection{Item-level interpretation}
+
+Table~\ref{tab:item-results} presents the aligned item-level statistics. All ten items obtained means above 4.3 after reverse coding, and the lowest favorable rate was 90.0\%, observed for the two Behavioral Intention items. This helps show that the positive evaluation was not concentrated in a single isolated aspect of the experience.
+
+\begin{table}[H]\centering
+\caption{Item-level scores after reverse coding of negative items.}
+\label{tab:item-results}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Item} & \textbf{Mean} & \textbf{SD} & \textbf{Favorable (\% $\geq$ 4)} \\
+\midrule
+Q1 & 4.77 & 0.43 & 100.0 \\
+Q2 & 4.77 & 0.43 & 100.0 \\
+Q3 & 4.83 & 0.46 & 96.7 \\
+Q4 & 4.50 & 0.68 & 90.0 \\
+Q5 & 4.77 & 0.50 & 96.7 \\
+Q6 & 4.60 & 0.50 & 100.0 \\
+Q7 & 4.47 & 0.68 & 96.7 \\
+Q8 & 4.60 & 0.56 & 96.7 \\
+Q9 & 4.50 & 0.86 & 93.3 \\
+Q10 & 4.37 & 0.89 & 90.0 \\
+\bottomrule
+\end{tabular}
+\tablesource{prepared by the author from the questionnaire data (2026)}
+\end{table}
+
+One detail is worth noting here. The slightly more conservative scores were associated with future-oriented adoption rather than with immediate usability or perceived usefulness. This is a realistic pattern for an early-stage legal technology tool: users can recognize practical value before they are fully ready to imagine routine dependence on it. In that sense, the lower Behavioral Intention scores do not weaken the proposal; they help place it at a plausible stage of maturity.
+
+\subsubsection{Subgroup stability}
+
+The favorable pattern was not restricted to a single user profile. Table~\ref{tab:subgroups} summarizes the SUS-style composite and construct means by subgroup. Legal-area participants reported slightly higher scores overall, but the differences were small enough to suggest stability rather than segmentation. The same is true for education level: even participants with completed high school evaluated the system positively across all measured dimensions.
+
+\begin{table}[H]\centering
+\caption{Subgroup results for the SUS-style composite and construct means.}
+\label{tab:subgroups}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.12}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+\textbf{Group} & \textbf{n} & \textbf{SUS-style} & \textbf{PEOU} & \textbf{Learnability} & \textbf{PU} & \textbf{BI} \\
+\midrule
+Legal area & 15 & 91.3 & 4.77 & 4.73 & 4.70 & 4.53 \\
+Non-legal area & 15 & 89.5 & 4.60 & 4.63 & 4.57 & 4.33 \\
+Higher education & 22 & 90.6 & 4.70 & 4.70 & 4.68 & 4.43 \\
+High school & 8 & 89.7 & 4.63 & 4.63 & 4.50 & 4.44 \\
+\bottomrule
+\end{tabular}
+\tablesource{prepared by the author from the questionnaire data (2026)}
+\end{table}
+
+This subgroup stability is important for the broader argument of the thesis. A legal simplification system that performs well only for readers who are already comfortable with legal discourse would have limited accessibility value. Here, the descriptive evidence points in the opposite direction: the perceived benefit appears to extend beyond the specialist audience.
+
+\subsection{Qualitative Feedback}
+
+The open-ended responses add important texture to the numerical picture. A light thematic reading of the 30 comments identified four recurring themes: clearer understanding and easier reading, productivity gains and faster triage, practicality of the interface, and requests for more detail, formatting, or glossary support. Table~\ref{tab:theme-frequency} summarizes these frequencies as coded mentions. Because a single response could be coded into more than one theme, totals should be interpreted as theme occurrences rather than unique participants.
+
+\begin{table}[H]\centering
+\caption{Frequency of coded mentions in open-ended feedback.}
+\label{tab:theme-frequency}
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}X c@{}}
+\toprule
+\textbf{Theme} & \textbf{Coded mentions} \\
+\midrule
+Clearer understanding and easier reading & 17 \\
+Productivity, triage, and quick overview & 15 \\
+Practicality, interface, and ease of use & 12 \\
+Requests for more detail, formatting, or glossary support & 9 \\
+\bottomrule
+\end{tabularx}
+\tablesource{prepared by the author from the questionnaire data (2026)}
+\end{table}
+
+The qualitative feedback aligns closely with the quantitative results. Many participants described the extension in terms of \emph{orientation}, \emph{overview}, and \emph{first understanding}, which suggests that LASCAS is not being interpreted as a replacement for full legal reading. Instead, it is seen as a support layer that lowers the initial barrier to entry into the document. This is precisely the role expected from a cognitively oriented accessibility tool.
+
+One of the most illustrative comments reported a perceived reduction in reading time from approximately eight minutes on the original file to four minutes with the support of the extension. Although this is anecdotal rather than experimental timing evidence, it captures a practical advantage that appears repeatedly across the responses: the tool seems useful not only for understanding more, but for understanding earlier. Other comments reinforce this idea by connecting the prototype to triage, quick consultation, high-volume reading routines, and communication with clients in more accessible language.
+
+An equally relevant aspect is the nature of the suggested improvements. Participants mostly asked for refinement rather than redesign: more detail in specific passages, better output formatting, richer glossary support, and, in some cases, even faster processing. This type of feedback is valuable because it suggests that the core proposition was accepted and that the next stage is one of quality improvement rather than basic justification.
+
+\subsection{Discussion and Positioning in the Literature}
+
+The results position LASCAS in an interesting place relative to the studies reviewed in Section~3. Prior work has consistently highlighted three central tensions in legal simplification: the scarcity of parallel data, the difficulty of evaluating simplification quality, and the risk of semantic loss. LASCAS does not resolve these tensions once and for all, but the empirical evidence suggests that its architecture offers a productive way of navigating them in practice.
+
+A first contribution is operational. While several related studies focus primarily on training strategies or corpus construction, LASCAS contributes a full prototype perspective. The system is not only a simplification model; it is a document-oriented workflow that includes extraction, legal-aware normalization, level-aware simplification, integrity validation, glossary support, and browser-side presentation. For accessibility purposes, this matters because users experience the whole interaction chain, not only the local quality of sentence rewriting.
+
+A second contribution concerns evaluation. As already suggested by Garimella et al.~(2022), automatic metrics and human judgment do not necessarily move in parallel in legal simplification. The present study extends that point by showing that user-centered evidence can be organized around perceived clarity, usefulness, and workflow fit, rather than around simplification scores alone. In this sense, the contribution of LASCAS is not to replace metric-oriented research, but to complement it with evidence of value in realistic use.
+
+A third contribution lies in how the prototype is positioned. Participants repeatedly framed the system as support for initial reading, triage, and communication, not as a substitute for specialized legal interpretation. This is a productive framing for the current stage of legal AI: tools of this kind add most value when they mediate access, not when they claim autonomous legal authority.
+
+Table~\ref{tab:lascas-comparison} positions LASCAS relative to the main studies discussed in Section~3.
+
+\begin{table}[H]\centering
+\caption{Positioning of LASCAS relative to related work.}
+\label{tab:lascas-comparison}
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.1cm} >{\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}p{3.1cm} X@{}}
+\toprule
+\textbf{Work} & \textbf{Main focus} & \textbf{Evaluation strategy} & \textbf{Relation to LASCAS} \\
+\midrule
+Garimella et al. (2022) & Simplification of English legal contracts & Human judgments and comparison with automatic metrics & Highlights the difficulty of aligning metrics with perceived simplicity; LASCAS advances the discussion through real-document use, integrity safeguards, and user-centered evidence. \\
+\addlinespace[2pt]
+Alves et al. (2023) & Simplification of Brazilian Portuguese judicial summaries & Readability metrics and model comparison & Demonstrates readability gains in the Brazilian context; LASCAS extends the discussion by integrating document processing, interface, and practical evaluation with users. \\
+\addlinespace[2pt]
+Athugodage et al. (2024) & Transfer learning with a newly built legal simplification corpus & Readability metrics and human evaluation & Shares the concern with data scarcity, but LASCAS emphasizes local execution and level-aware simplification instead of a new supervised corpus. \\
+\addlinespace[2pt]
+Toivonen et al. (2025) and Zimina-Poirot et al. (2025) & Plain language, legal design, and responsible AI assistance & Conceptual and case-based framing of accessibility in law & LASCAS operationalizes this agenda in a concrete artifact, showing how plain-language support can be embedded in a local-first simplification workflow. \\
+\addlinespace[2pt]
+LASCAS (this work) & Local-first legal simplification for cognitive accessibility & Formative pre-test plus broader SUS/TAM-style user evaluation on real anonymized files & Combines accessibility goals, document engineering, semantic-integrity safeguards, glossary support, and applied evaluation in Brazilian legal Portuguese. \\
+\bottomrule
+\end{tabularx}
+\tablesource{prepared by the author (2026)}
+\end{table}
+
+Taken together, these findings suggest that the value of LASCAS lies less in competing with purely model-centered approaches and more in showing how simplification, accessibility, and real use can be articulated within the same artifact. That applied positioning complements well the studies that are more narrowly focused on corpora, metrics, or training architecture.
+
 \section{Conclusion}
+
+This thesis investigated how contemporary Natural Language Processing techniques can be employed to simplify Brazilian Portuguese legal texts with cognitive accessibility as a guiding objective. In response to this problem, the work proposed and developed LASCAS, a \emph{local-first} prototype capable of receiving legal documents in HTML or PDF, processing them, and presenting simplified versions through a browser-integrated interface.
+
+The main contribution of the thesis can be understood at three levels. At the conceptual level, it brings together cognitive accessibility, \emph{plain language}, and automatic text simplification in a domain where insufficient comprehension can affect autonomy, informed decision-making, and access to legal information. At the technical level, it shows that legal simplification in Brazilian Portuguese benefits from a hybrid architecture in which the language model operates alongside preprocessing, protection of essential information, validation, and presentation layers. At the empirical level, it shows that this combination already yields a prototype perceived by users as useful, easy to operate, and relevant for real tasks involving initial reading and document triage.
+
+The results suggest that the value of LASCAS does not lie only in rewriting difficult passages, but in reorganizing access to the legal document. Rather than competing with specialized legal reading, the tool acts as an intermediate layer of approach, allowing users to grasp the central theme, the function of the document, and the points that deserve closer attention more quickly. This is particularly relevant because it shifts automatic simplification from a merely experimental role toward a practical support function.
+
+Another important contribution lies in the methodological stance of the work. By relying on real documents, user evaluation with distinct participant profiles, and a solution executable in a local environment, the thesis brings the problem closer to realistic conditions of use. This makes the results less dependent on idealized scenarios and more connected to the kinds of constraints that typically accompany applied systems in legal and institutional settings.
+
+From the perspective of the research field, the thesis reinforces an idea that appears recurrently in the literature but is not always explored in depth: simplifying legal texts is not only a text-generation challenge, but also a mediation problem between specialized language and public understanding. For this reason, the quality of a solution in this area depends not only on model behavior, but also on how the tool structures reading, preserves essential content, and fits into an understandable workflow.
+
+Looking ahead, LASCAS opens several meaningful directions for future work. These include broader evaluations with larger samples and objective comprehension tasks, expansion of document coverage, richer context-aware glossary support, more robust handling of complex PDFs, and integration with complementary reading aids. There is also a clear opportunity to explore how systems of this kind can be incorporated into institutional communication, legal assistance, or first-contact guidance workflows.
+
+In summary, LASCAS demonstrates that AI-assisted legal simplification can generate concrete gains in perceived clarity, usefulness, and accessibility without depending on excessively complex infrastructure. For the scope of this thesis, that already constitutes a relevant result. More than presenting an isolated experiment, the work offers a solid basis for future evolution and supports the idea that language technologies can contribute in a practical way to reducing the distance between legal documents and the people who need to understand them.
+
 
 \bibliographystyle{abntex2-alf}
 \bibliography{referencias}
