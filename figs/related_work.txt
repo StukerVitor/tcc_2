@@ -1,0 +1,28 @@
+\begin{table}[H]
+    \centering
+    \caption{Comparative Analysis of Related Work in Legal Text Simplification}
+    \label{tab:related_work_comparison}
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabularx}{\textwidth}{
+        >{\raggedright}p{2.0cm}
+        >{\raggedright}p{2.5cm}
+        >{\raggedright}X
+        >{\raggedright}p{3.0cm}
+        >{\raggedright\arraybackslash}p{4.5cm}}
+        \toprule
+        \textbf{Reference} & \textbf{Focus / Domain} & \textbf{Approach / Technique} & \textbf{Data Strategy} & \textbf{Key Finding / Limitation} \\
+        \midrule
+        Toivonen et al. (2025) & Plain language and legal design for personalized law & Conceptual framework, AI-assisted legal communication; user-centered design & Conceptual, literature-based (no dedicated parallel corpus) & Emphasizes clear wording plus responsible AI; requires human oversight, standards, and review workflows; not an empirical TS model. \\
+        \addlinespace
+        Garimella et al. (2022) & Text Simplification (TS) for Legal Contracts (SEC Clauses) & Compared Unsupervised (BERT-LS, DISSIM, KIS) \& Supervised (BART) & Used existing unsupervised methods; BART trained on non-legal/contract data & Expert disagreement on simplicity; Weak correlation of auto metrics vs. human judgment; Trade-offs (fluency, meaning). \\
+        \addlinespace
+        Athugodage et al. (2024) & Russian Legal Text Simplification & Supervised Fine-tuning (T5, GPT) & Created novel parallel corpus (Govt. newspaper explanations) & Viability of fine-tuning demonstrated; Models improved readability (FKGL, Fog) \& SARI; ROUGE scores poor. \\
+        \addlinespace
+        Alves et al. (2023) & Brazilian Portuguese Judicial Summaries (TRF5, STF) & Compared Unsupervised (MUSS) \& Supervised (Transformer, NMT+Attention) & Generated synthetic parallel data using MUSS & Most methods improved readability (FRE); Transformer \& MUSS+Translate performed well; NMT+Attention struggled. \\
+        \addlinespace
+        Zimina-Poirot et al. (2025) & Plain/Easy-to-Read for legal texts (multilingual) & GAI-assisted rephrasing; case-based study; guideline-driven workflow & Authentic examples; no dedicated parallel corpus (journal article) & GAI simplifies effectively but lacks functional legal awareness; requires human oversight, standards, and review tooling. \\
+        \bottomrule
+    \end{tabularx}
+    \tablesource{prepared by the author (2026)}
+\end{table}
