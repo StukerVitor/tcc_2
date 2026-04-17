@@ -229,7 +229,7 @@ LASCAS is a local-first pipeline that ingests HTML or PDF, normalizes legal arti
 \begin{itemize}
 \item \textit{Local API (Node/Express):} the primary JSON endpoint \texttt{/simplify} orchestrates the end-to-end flow for HTML and PDF (via URL or Base64). In addition, the prototype exposes \texttt{/simplify-pdf} for binary PDF uploads (\texttt{application/pdf}), which reduces payload overhead for large files and improves robustness in real usage.
 \item \textit{PDF Extraction:} robust text extraction using \texttt{pdfjs-dist} legacy build; includes a geometry-based reconstruction that re-assembles lines by $x$–$y$ coordinates and adaptive gap heuristics, plus page-gluing rules that avoid spurious blank paragraphs.
-\item \textit{Preprocessing:} normalization of legal artifacts (numbers, punctuation, diacritics, currency, dates), sentence splitting with abbreviation shielding, and paragraph-aware chunking for the condensation levels. \textbf{Token safety is level-aware:} in \texttt{light}, placeholders are used to protect critical items before any LLM call. In \texttt{medium}/\texttt{strong}, the system prioritizes the \emph{preservation and validation} of essential items (e.g., dates, values, percentages, legal citations, registry/process identifiers, and negations), while PII/qualification fields may be omitted by design.
+\item \textit{Preprocessing:} normalization of legal artifacts (numbers, punctuation, diacritics, currency, dates), sentence splitting with abbreviation shielding, and paragraph-aware chunking for the condensation levels. Token safety is level-aware: in \texttt{light}, placeholders are used to protect critical items before any LLM call. In \texttt{medium}/\texttt{strong}, the system prioritizes the \emph{preservation and validation} of essential items (e.g., dates, values, percentages, legal citations, registry/process identifiers, and negations), while PII/qualification fields may be omitted by design.
 \item \textit{Simplification Core:} hybrid engine that (i) prompts the local model \texttt{llama3.1:8b-instruct} via Ollama (configured in the prototype through \texttt{LASCAS\_MODEL}); (ii) rejects unusable outputs (timeouts, meta-preambles, or overly similar rewrites); (iii) deterministic restructuring fallback that enforces visible structure (short lines, headings, bullets); and (iv) glossary first-occurrence annotations for unusual words and abbreviations (WCAG 3.1 intent).
 \item \textit{Integrity Layer (level-aware):} semantic safety check that validates preservation of \emph{essential} legal information. In \texttt{light}, integrity is strict (high fidelity, near-complete preservation). In \texttt{medium}/\texttt{strong}, integrity is configured for summarization: it still preserves dates, values, percentages, legal citations and registry/process references, but allows non-essential personal qualifications (e.g., CPF/RG, address, repetitions) to be dropped to achieve meaningful condensation.
 \item \textit{Extension Shell (MV3):} popup selects simplification level and messages the content script; CSS sidebar is injected as a web-accessible resource for side-by-side viewing. PDFs can be forwarded as Base64 through \texttt{/simplify} or as binary uploads through \texttt{/simplify-pdf}, depending on browser constraints and file size.
@@ -388,7 +388,7 @@ This section details key technical choices and components within the LASCAS prot
 The extractor uses \texttt{pdfjs-dist} legacy build with explicit worker/CMAP paths and applies a geometry-based reconstruction that re-assembles lines by $y$‐banding and adaptive gap thresholds (percentiles of glyph gaps per line). It also fixes \emph{dash-line breaks} in numbers (\texttt{1-\textbackslash n2} $\rightarrow$ \texttt{1-2}), collapses excessive newlines, and glues page breaks using sentence-aware heuristics to avoid accidental paragraph splits.
 
 \item \textit{Legal-aware normalization and token safety (level-aware):}
-The normalizer repairs Brazilian formats (\texttt{R\$ 133.569,32}), digit spacing artifacts (\texttt{133.569, 32} $\rightarrow$ \texttt{133.569,32}), and OCR-style issues typical of notary deeds. \textbf{Token safety is level-aware:}
+The normalizer repairs Brazilian formats (\texttt{R\$ 133.569,32}), digit spacing artifacts (\texttt{133.569, 32} $\rightarrow$ \texttt{133.569,32}), and OCR-style issues typical of notary deeds. Token safety is level-aware:
 (i) in \texttt{light}, placeholders are used to protect critical content before LLM calls (numbers, dates, values, legal citations, negations, and fragile legal terms) and are restored after rewriting;
 (ii) in \texttt{medium}/\texttt{strong}, the system focuses on preserving and validating \emph{essential} items (dates, values, percentages, legal citations, and registry/process identifiers), while allowing non-essential qualification/PII fields to be omitted to achieve meaningful condensation.
 
@@ -411,7 +411,7 @@ Before returning, the output is validated to preserve essential legal informatio
 The MV3 manifest injects a content script and exposes \texttt{sidebar.css} as a web-accessible resource. The popup selects \texttt{level} and communicates via tab messaging. For PDFs, the prototype supports (a) forwarding Base64 through \texttt{/simplify} and (b) forwarding raw bytes through \texttt{/simplify-pdf}. For local \texttt{file://} PDFs, the user may need to explicitly allow file access for the extension in the browser settings.
 \end{itemize}
 
-\noindent \textbf{Selected normalization rules (examples).} Table~\ref{tab:normalization-examples} lists representative normalization issues and where in the pipeline they are handled.
+\noindent Selected normalization rules (examples). Table~\ref{tab:normalization-examples} lists representative normalization issues and where in the pipeline they are handled.
 
 \begin{table}[H]\centering
 \caption{Examples of normalization and where they are applied.}
@@ -430,7 +430,7 @@ Abbreviation shielding & \texttt{Art. 5º} (no split) & Splitter guard \\
 \tablesource{prepared by the author (2026)}
 \end{table}
 
-\noindent \textbf{Server hardening and warm-up.}
+\noindent Server hardening and warm-up.
 The API enables CORS, increases keep-alive timeouts, and performs a best-effort warm-up (\texttt{/api/tags} + 1-token chat) to reduce the first-call penalty while not blocking availability if the daemon is cold.
 
 \subsection{Limitations}
