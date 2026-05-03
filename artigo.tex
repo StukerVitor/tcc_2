@@ -42,8 +42,6 @@
 \usepackage{amssymb}
 \usepackage[export]{adjustbox}
 \usepackage{tabularx}
-\usepackage{enumitem}
-\usepackage{placeins}
 
 % Texto "Fonte" (genérico p/ qualquer float)
 \newcommand{\floatsource}[1]{\caption*{\footnotesize\textit{Source: #1}}}
@@ -88,14 +86,6 @@
 \captionsetup[figure]{position=top}
 \captionsetup[algorithm]{position=top}
 
-% Layout tuning to reduce excessive white space
-\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
-\setlength{\floatsep}{8pt plus 2pt minus 2pt}
-\setlength{\intextsep}{10pt plus 2pt minus 2pt}
-\setlength{\abovecaptionskip}{6pt}
-\setlength{\belowcaptionskip}{4pt}
-\setlist[itemize]{itemsep=4pt, topsep=4pt, parsep=0pt, partopsep=0pt}
-
 \newcolumntype{L}{>{\centering\arraybackslash}m{6.2cm}}
 \newcolumntype{G}{>{\centering\arraybackslash}m{5.5cm}}
 \newcolumntype{A}{>{\centering\arraybackslash}m{2.4cm}}
@@ -122,12 +112,11 @@ Article presented as a partial requirement to obtain the title of Bachelor in Co
 %=======================================================================
 
 \begin{document}
-\raggedbottom
 \capa
 \folhaderosto
 
 % Diferentemente do normal, os comandos a seguir devem vir aqui mesmo,
-% e não antes do \begin{document}
+% e não antes do \begin{document} onde seria o lugar deles. 
 \tituloArtigo{LASCAS: Toward Cognitive Accessibility in Legal Texts}{}
 \autorArtigo{Vitor Stüker\footnote{Graduating in Computer Science at Unisinos. Email: vitoralmeida1@edu.unisinos.br}}
 \autorArtigo{Alex Roehrs\footnote{Professor of IT Courses at Unisinos. Email: alexr@unisinos.br}}
@@ -209,7 +198,7 @@ The majority of state-of-the-art NLP models are based on the Transformer archite
 
 Related work was identified through a reproducible, funnel-style search across Google Scholar, ACL Anthology, Scopus, and DBLP. A broad search combining the terms ``legal text simplification,'' ``plain language,'' and ``law/legal,'' with a 2022--current year filter, yielded \emph{$\sim 60$} items screened by title and abstract. Scope was then narrowed to \textit{Automatic Text Simplification (ATS)} in the legal domain through combinations of ``text simplification,'' ``legal,'' and document types such as contracts, judgments, and statutes, alongside model terms such as Transformer, T5, and BART, reducing the pool to \emph{$\sim 25$}. Locale-sensitive searches also targeted Portuguese and Russian efforts. After removing duplicates and near-duplicates, \emph{$\sim 14$} studies remained. Inclusion then required either empirical ATS on legal data with metrics and/or human judgments, or peer-reviewed conceptual frameworks grounding plain-language and AI-assisted rephrasing for legal accessibility. After full-text screening, \emph{6} primary papers remained. The discussion below focuses on three empirical ATS studies in the legal domain---\cite{garimella2022insights,alves2023automatic,athugodage2024transfer}---and two works framing plain language and AI-assisted rephrasing as accessibility enablers in law---\cite{toivonen2025jelt,zimina2025gai}. This set aligns with the identified research gap (semantic fidelity vs.\ accessibility under data scarcity). Figure~\ref{fig:research_funnel} summarizes this search and screening process.
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
   \centering
   \caption{Funnel-style search and screening process for related work.}
   \includegraphics[width=.7\linewidth]{images/research.pdf}
@@ -247,17 +236,17 @@ LASCAS is a local-first pipeline that ingests HTML or PDF, normalizes legal arti
 \end{itemize}
 
 \prefig{Figure~\ref{fig:arch} summarizes the high-level architecture of LASCAS, including the user interface, local service, and document sources.}
-\begin{figure}[!htbp]
+\begin{figure}[H]
   \centering
   \caption{Component-level architecture}
   \label{fig:arch}
-  \includegraphics[width=.84\textwidth, keepaspectratio]{images/arch.pdf}
+  \includegraphics[max width=\textwidth, max height=\textheight, keepaspectratio]{images/arch.pdf}
   \figsource{prepared by the author (2026)}
 \end{figure}
 
 \noindent \textbf{Component mapping to files.} Table~\ref{tab:components} maps each logical component of the architecture to its corresponding source files.
 
-\begin{table}[!htbp]\centering
+\begin{table}[H]\centering
 \caption{Component mapping to source files in LASCAS.}
 \label{tab:components}
 \begin{tabular}{@{}ll@{}}
@@ -286,7 +275,7 @@ The LASCAS pipeline is implemented as a level-aware procedure. The \texttt{light
 
 \noindent \textbf{Parameters by level.} The main hyperparameters for each simplification level are summarized in Table~\ref{tab:level-params}.
 
-\begin{table}[!htbp]\centering
+\begin{table}[H]\centering
 \caption{Level parameters used by the prototype backend.}
 \label{tab:level-params}
 \begin{tabular}{@{}lllll@{}}
@@ -371,16 +360,16 @@ $T_1 \leftarrow \fn{DeterministicPreStructure}(T_0)$\;
 \algsourcebelow{prepared by the author (2026)}
 
 \prefig{Figure~\ref{fig:control-logic} illustrates the control logic and decision states for a single simplification pass.}
-\begin{figure}[!htbp]
+\begin{figure}[H]
   \centering
   \caption{Decision states for a single pass.}
   \label{fig:control-logic}
-  \includegraphics[width=.72\linewidth]{images/control-logic.pdf} 
+  \includegraphics[width=.64\linewidth]{images/control-logic.pdf} 
   \figsource{prepared by the author (2026)}
 \end{figure}
 
 \prefig{Figure~\ref{fig:api-sequence} shows the end-to-end request path between the browser extension and the local LASCAS service.}
-\begin{figure}[!htbp]
+\begin{figure}[H]
   \centering
     \caption{End-to-end request path}
     \label{fig:api-sequence}
@@ -424,7 +413,7 @@ The MV3 manifest injects a content script and exposes \texttt{sidebar.css} as a 
 
 \noindent Selected normalization rules (examples). Table~\ref{tab:normalization-examples} lists representative normalization issues and where in the pipeline they are handled.
 
-\begin{table}[!htbp]\centering
+\begin{table}[H]\centering
 \caption{Examples of normalization and where they are applied.}
 \label{tab:normalization-examples}
 \begin{tabular}{@{}lll@{}}
@@ -460,7 +449,7 @@ Participants use the LASCAS browser extension to simplify at least one real lega
 \subsection{Instrument: Likert Scale and Items}
 All items use a 5‐point Likert scale (1 = \textit{Strongly disagree}, 2 = \textit{Disagree}, 3 = \textit{Neither}, 4 = \textit{Agree}, 5 = \textit{Strongly agree}). The ten statements are \textbf{randomized} to avoid presenting the positive/negative pair of the same construct consecutively, an arrangement recommended to reduce response artifacts in lightweight usability evaluations \cite{robertson2020discount}. The complete list of items is shown in Table~\ref{tab:survey-items}. The statements cover five constructs: Perceived Ease of Use (PEOU), Learnability, Perceived Usefulness (PU), Performance (latency/throughput), and Behavioral Intention (BI).
 
-\begin{table}[!htbp]\centering
+\begin{table}[H]\centering
 \caption{Survey items in randomized order (negative items are reverse‐scored).}
 \label{tab:survey-items}
 \setlength{\tabcolsep}{4pt}
@@ -529,7 +518,7 @@ The empirical stage was organized in two complementary moments. First, a formati
 
 Second, a broader attitudinal evaluation was conducted with the questionnaire described in Section~5. In this stage, each participant assessed one legal document simplified at the \texttt{medium} level. This decision intentionally reduced reading burden and kept the session short enough to avoid fatigue, while still allowing participants to compare the original and simplified versions with adequate attention. Table~\ref{tab:eval-scope} summarizes the evaluation scope.
 
-\begin{table}[!htbp]
+\begin{table}[H]
 \centering
 \caption{Evaluation stages and rationale adopted in this study.}
 \label{tab:eval-scope}
@@ -556,11 +545,11 @@ This also helps explain why development was not pushed indefinitely beyond the c
 
 The broader questionnaire stage included 30 respondents. The sample was intentionally heterogeneous in relation to legal background, with perfect balance between participants from the legal area (\textit{n} = 15) and participants from outside the legal area (\textit{n} = 15). In terms of formal education, 22 participants reported completed higher education and 8 reported completed high school. Figure~\ref{fig:participant-profile} summarizes this profile.
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
   \centering
   \caption{Participant profile in the broader questionnaire stage.}
   \label{fig:participant-profile}
-  \includegraphics[width=.76\linewidth]{images/participant_profile.pdf}
+  \includegraphics[width=.82\linewidth]{images/participant_profile.pdf}
   \figsource{prepared by the author from the questionnaire data (2026)}
 \end{figure}
 
@@ -574,7 +563,7 @@ The quantitative results show a consistently favorable pattern across different 
 
 Table~\ref{tab:construct-results} presents the descriptive statistics by construct. On the 1--5 scale, the highest means were observed for Perceived Ease of Use and Learnability (both 4.68), followed by Performance (4.65) and Perceived Usefulness (4.63). Behavioral Intention was the lowest-scoring construct (4.43), but it still remained clearly favorable, with 86.7\% of respondents at or above 4.0.
 
-\begin{table}[!htbp]\centering
+\begin{table}[H]\centering
 \caption{Construct-level scores in the broader questionnaire stage.}
 \label{tab:construct-results}
 \small
@@ -597,11 +586,11 @@ These construct means concentrate in the upper range of the scale, suggesting th
 
 The overall SUS-style composite reinforces this interpretation. After linearly rescaling the ten reverse-aligned items, the instrument reached a mean of 90.4/100 ($SD = 9.8$), with median 92.5 and interquartile range from 87.5 to 97.5. In practical terms, this is a strong result for a local-first academic prototype. Moreover, 86.7\% of participants scored the experience at 80 or above, and 63.3\% scored it at 90 or above. Figure~\ref{fig:sus-distribution} shows the distribution.
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
   \centering
   \caption{Distribution of the SUS-style composite (0--100).}
   \label{fig:sus-distribution}
-  \includegraphics[width=.72\linewidth]{images/sus_distribution.pdf}
+  \includegraphics[width=.82\linewidth]{images/sus_distribution.pdf}
   \figsource{prepared by the author from the questionnaire data (2026)}
 \end{figure}
 
@@ -611,7 +600,7 @@ The quality checks described in Section~5 also support a cautious but positive r
 
 Table~\ref{tab:item-results} presents the aligned item-level statistics. All ten items obtained means above 4.3 after reverse coding, and the lowest favorable rate was 90.0\%, observed for the two Behavioral Intention items. This helps show that the positive evaluation was not concentrated in a single isolated aspect of the experience.
 
-\begin{table}[!htbp]\centering
+\begin{table}[H]\centering
 \caption{Item-level scores after reverse coding of negative items.}
 \label{tab:item-results}
 \small
@@ -641,7 +630,7 @@ One detail is worth noting here. The slightly more conservative scores were asso
 
 The favorable pattern was not restricted to a single user profile. Table~\ref{tab:subgroups} summarizes the SUS-style composite and construct means by subgroup. Legal-area participants reported slightly higher scores overall, but the differences were small enough to suggest stability rather than segmentation. The same is true for education level: even participants with completed high school evaluated the system positively across all measured dimensions.
 
-\begin{table}[!htbp]\centering
+\begin{table}[H]\centering
 \caption{Subgroup results for the SUS-style composite and construct means.}
 \label{tab:subgroups}
 \footnotesize
@@ -666,7 +655,7 @@ This subgroup stability is important for the broader argument of the thesis. A l
 
 The open-ended responses add important texture to the numerical picture. A light thematic reading of the 30 comments identified four recurring themes: clearer understanding and easier reading, productivity gains and faster triage, practicality of the interface, and requests for more detail, formatting, or glossary support. Table~\ref{tab:theme-frequency} summarizes these frequencies as coded mentions. Because a single response could be coded into more than one theme, totals should be interpreted as theme occurrences rather than unique participants.
 
-\begin{table}[!htbp]\centering
+\begin{table}[H]\centering
 \caption{Frequency of coded mentions in open-ended feedback.}
 \label{tab:theme-frequency}
 \small
@@ -703,7 +692,7 @@ A third contribution lies in how the prototype is positioned. Participants repea
 
 Table~\ref{tab:lascas-comparison} positions LASCAS relative to the main studies discussed in Section~3.
 
-\begin{table}[!htbp]\centering
+\begin{table}[H]\centering
 \caption{Positioning of LASCAS relative to related work.}
 \label{tab:lascas-comparison}
 \small
@@ -728,8 +717,6 @@ LASCAS (this work) & Local-first legal simplification for cognitive accessibilit
 \end{table}
 
 Taken together, these findings suggest that the value of LASCAS lies less in competing with purely model-centered approaches and more in showing how simplification, accessibility, and real use can be articulated within the same artifact. That applied positioning complements well the studies that are more narrowly focused on corpora, metrics, or training architecture.
-
-\FloatBarrier
 
 \section{Conclusion}
 
