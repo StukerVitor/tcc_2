@@ -47,8 +47,8 @@
 \newcommand{\floatsource}[1]{\caption*{\footnotesize\textit{Source: #1}}}
 % linha de fonte abaixo do algoritmo
 \newcommand{\algsourcebelow}[1]{%
-  \captionsetup{type=algorithm}%
-  \caption*{\footnotesize\textit{Source: #1}}%
+  \par\vspace{2pt}%
+  {\centering\footnotesize\textit{Source: #1}\par}%
 }
 
 % Aliases semânticos (use qualquer um deles)
