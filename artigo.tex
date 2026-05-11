@@ -228,12 +228,13 @@ To address the problem of legal text inaccessibility, this thesis proposes the c
 LASCAS is a local-first pipeline that ingests HTML or PDF, normalizes legal artifacts, applies \emph{level-aware token safety}, and then simplifies the text using a hybrid core that combines a local LLM (via Ollama) with deterministic fallbacks. A thin browser extension invokes the local API and renders results side-by-side. The main components are:
 
 \begin{itemize}
-\item \textit{Local API (Node/Express):} the primary JSON endpoint \texttt{/simplify} orchestrates the end-to-end flow for HTML and PDF (via URL or Base64). In addition, the prototype exposes \texttt{/simplify-pdf} for binary PDF uploads (\texttt{application/pdf}), which reduces payload overhead for large files and improves robustness in real usage.
+\item \textit{Local API (Node/Express):} the primary JSON endpoint \texttt{/simplify} orchestrates the end-to-end flow for HTML and PDF (via URL or Base64). In addition, the prototype exposes \texttt{/simplify-pdf} for binary PDF uploads (\texttt{application/pdf}), which reduces payload overhead for large files and improves robustness in real usage. The same server layer also centralizes lightweight cache/log traces used for request inspection, timing analysis, and local debugging during development and evaluation.
 \item \textit{PDF Extraction:} robust text extraction using \texttt{pdfjs-dist} legacy build; includes a geometry-based reconstruction that re-assembles lines by $x$–$y$ coordinates and adaptive gap heuristics, plus page-gluing rules that avoid spurious blank paragraphs.
 \item \textit{Preprocessing:} normalization of legal artifacts (numbers, punctuation, diacritics, currency, dates), sentence splitting with abbreviation shielding, and paragraph-aware chunking for the condensation levels. Token safety is level-aware: in \texttt{light}, placeholders are used to protect critical items before any LLM call. In \texttt{medium}/\texttt{strong}, the system prioritizes the \emph{preservation and validation} of essential items (e.g., dates, values, percentages, legal citations, registry/process identifiers, and negations), while PII/qualification fields may be omitted by design.
 \item \textit{Simplification Core:} hybrid engine that (i) prompts the local model llama3.1:8b-instruct via Ollama (configured in the prototype through \texttt{LASCAS\_MODEL}); (ii) rejects unusable outputs (timeouts, meta-preambles, or overly similar rewrites); (iii) deterministic restructuring fallback that enforces visible structure (short lines, headings, bullets); and (iv) glossary first-occurrence annotations for unusual words and abbreviations (WCAG 3.1 intent).
-\item \textit{Integrity Layer (level-aware):} semantic safety check that validates preservation of \emph{essential} legal information. In \texttt{light}, integrity is strict (high fidelity, near-complete preservation). In \texttt{medium}/\texttt{strong}, integrity is configured for summarization: it still preserves dates, values, percentages, legal citations and registry/process references, but allows non-essential personal qualifications (e.g., CPF/RG, address, repetitions) to be dropped to achieve meaningful condensation.
-\item \textit{Extension Shell (MV3):} popup selects simplification level and messages the content script; CSS sidebar is injected as a web-accessible resource for side-by-side viewing. PDFs can be forwarded as Base64 through /simplify or as binary uploads through /simplify-pdf, depending on browser constraints and file size.
+\item \textit{Merge and final normalization:} after sentence- or chunk-level processing, accepted outputs are rejoined and post-normalized before the response is returned to the browser. This stage consolidates intermediate results, restores protected content when applicable, and stabilizes headings, spacing, and final presentation.
+\item \textit{Integrity Layer (level-aware):} semantic safety check that validates preservation of essential legal information. In \texttt{light}, integrity is strict (high fidelity, near-complete preservation). In \texttt{medium}/\texttt{strong}, integrity is configured for summarization: it still preserves dates, values, percentages, legal citations and registry/process references, but allows non-essential personal qualifications (e.g., CPF/RG, address, repetitions) to be dropped to achieve meaningful condensation.
+\item \textit{Extension Shell (MV3):} the popup selects the simplification level and coordinates browser-side inputs through the content script, including DOM/selection extraction and picked PDF files; CSS sidebar is injected as a web-accessible resource for side-by-side viewing. PDFs can be forwarded as Base64 through /simplify or as binary uploads through /simplify-pdf, depending on browser constraints and file size.
 \end{itemize}
 
 Figure~\ref{fig:arch} summarizes the high-level architecture of LASCAS, including the user interface, local service, and document sources.
@@ -258,13 +259,13 @@ Local API / warm-up / route & \texttt{lascas-local/server.js} \\
 PDF extractor \& fallbacks & \texttt{lascas-local/src/pdf.js} \\
 Preprocess \& protection & \texttt{lascas-local/src/preprocess.js} \\
 Glossary annotations & \texttt{lascas-local/src/glossary.js} \\
-Hybrid simplification core & \texttt{lascas-local/src/simplifier.js} \\
+Hybrid simplification core / final normalization & \texttt{lascas-local/src/simplifier.js} \\
 Integrity validator & \texttt{lascas-local/src/validators.js} \\
 MV3 manifest & \texttt{lascas-extension/public/manifest.json} \\
 Content CSS & \texttt{lascas-extension/public/sidebar.css} \\
-Popup UI (React) & \texttt{lascas-extension/src/App.tsx} \\
-Popup UI (React) & \texttt{lascas-extension/src/main.tsx} \\
-Content script / page integration & \texttt{lascas-extension/src/content.ts} \\
+Popup UI / PDF picker (React) & \texttt{lascas-extension/src/App.tsx} \\
+Popup bootstrap (React) & \texttt{lascas-extension/src/main.tsx} \\
+Content script / DOM extraction / page integration & \texttt{lascas-extension/src/content.ts} \\
 \bottomrule
 \end{tabular}
 \tablesource{prepared by the author (2026)}
