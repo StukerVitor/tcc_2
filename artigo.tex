@@ -275,6 +275,8 @@ Content script / DOM extraction / page integration & \texttt{lascas-extension/sr
 
 The LASCAS pipeline is implemented as a level-aware procedure. The \texttt{light} level focuses on sentence-level rewriting (high fidelity, near-original length), while \texttt{medium} and \texttt{strong} apply condensation with a guaranteed-shrink heuristic fallback. Algorithm~\ref{alg:lascas} presents the step-wise procedure used in the prototype.
 
+More specifically, the algorithm makes explicit that simplification is not treated as a single generation step. The pipeline first normalizes and pre-structures the input, then branches according to the selected level. In \texttt{light}, the system protects sensitive content, rewrites sentence by sentence, restores protected items, and finally applies a strict integrity check. In \texttt{medium} and \texttt{strong}, the system works on paragraph-aware chunks, checks whether required legal items remain preserved, and falls back to heuristic condensation whenever the model output is unsuitable. This sequence clarifies how LASCAS combines generation, validation, and deterministic recovery within the same processing flow.
+
 \noindent The main hyperparameters for each simplification level are summarized in Table~\ref{tab:level-params}.
 
 \begin{table}[H]\centering
@@ -361,7 +363,7 @@ $T_1 \leftarrow \fn{DeterministicPreStructure}(T_0)$\;
 \end{algorithm}
 \algsourcebelow{prepared by the author (2026)}
 
-Figure~\ref{fig:control-logic} illustrates the control logic and decision states for a single simplification pass.
+Figure~\ref{fig:control-logic} illustrates the control logic and decision states for a single simplification pass. It complements Algorithm~\ref{alg:lascas} by showing, in a more visual form, where the pipeline branches, how candidate outputs are accepted or rejected, and at which points fallback behavior is triggered. In this sense, the figure helps clarify that simplification in LASCAS is governed by successive decision checks rather than by a single opaque model response.
 \begin{figure}[H]
   \centering
   \caption{Decision states for a single pass.}
@@ -370,7 +372,7 @@ Figure~\ref{fig:control-logic} illustrates the control logic and decision states
   \figsource{prepared by the author (2026)}
 \end{figure}
 
-Figure~\ref{fig:api-sequence} shows the end-to-end request path between the browser extension and the local LASCAS service.
+Figure~\ref{fig:api-sequence} shows the end-to-end request path between the browser extension and the local LASCAS service. While the architectural diagram identifies the main components, this sequence view clarifies how they interact during actual use: the extension captures the user input, sends the request to the local backend, waits for extraction and simplification to finish, and then receives the final result for presentation in the browser. This makes the operational coordination of the prototype more explicit.
 \begin{figure}[H]
   \centering
     \caption{End-to-end request path}
