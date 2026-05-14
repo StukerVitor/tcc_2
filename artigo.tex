@@ -251,7 +251,10 @@ Figure~\ref{fig:arch} summarizes the high-level architecture of LASCAS, includin
 \begin{table}[H]\centering
 \caption{Component mapping to source files in LASCAS.}
 \label{tab:components}
-\begin{tabular}{@{}ll@{}}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.6cm} >{\raggedright\arraybackslash}X@{}}
 \toprule
 \textbf{Component} & \textbf{File(s)} \\
 \midrule
@@ -265,9 +268,9 @@ MV3 manifest & \texttt{lascas-extension/public/manifest.json} \\
 Content CSS & \texttt{lascas-extension/public/sidebar.css} \\
 Popup UI / PDF picker (React) & \texttt{lascas-extension/src/App.tsx} \\
 Popup bootstrap (React) & \texttt{lascas-extension/src/main.tsx} \\
-Content script / DOM extraction / page integration & \texttt{lascas-extension/src/content.ts} \\
+Content script / DOM extraction & \texttt{lascas-extension/src/content.ts} \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \tablesource{prepared by the author (2026)}
 \end{table}
 
