@@ -392,10 +392,10 @@ This section details key technical choices and components within the LASCAS prot
 
 \begin{itemize}
 \item \textit{PDF robustness:}
-The extractor uses \texttt{pdfjs-dist} legacy build with explicit worker/CMAP paths and applies a geometry-based reconstruction that re-assembles lines by $y$‐banding and adaptive gap thresholds (percentiles of glyph gaps per line). It also fixes \emph{dash-line breaks} in numbers (\texttt{1-\textbackslash n2} $\rightarrow$ \texttt{1-2}), collapses excessive newlines, and glues page breaks using sentence-aware heuristics to avoid accidental paragraph splits.
+The extractor uses \texttt{pdfjs-dist} legacy build with explicit worker, CMAP paths and applies a geometry-based reconstruction that re-assembles lines by $y$‐banding and adaptive gap thresholds (percentiles of glyph gaps per line). It also fixes \emph{dash-line breaks} in numbers (\texttt{1-\textbackslash n2} $\rightarrow$ \texttt{1-2}), collapses excessive newlines, and glues page breaks using sentence-aware heuristics to avoid accidental paragraph splits.
 
 \item \textit{Legal-aware normalization and token safety (level-aware):}
-The normalizer repairs Brazilian formats (\texttt{R\$ 133.569,32}), digit spacing artifacts (\texttt{133.569, 32} $\rightarrow$ \texttt{133.569,32}), and OCR-style issues typical of notary deeds. Token safety is level-aware:
+The normalizer repairs Brazilian formats R\$ 133.569,32, digit spacing artifacts (\texttt{133.569, 32} $\rightarrow$ \texttt{133.569,32}), and OCR-style issues typical of notary deeds. Token safety is level-aware:
 (i) in \texttt{light}, placeholders are used to protect critical content before LLM calls (numbers, dates, values, legal citations, negations, and fragile legal terms) and are restored after rewriting;
 (ii) in \texttt{medium}/\texttt{strong}, the system focuses on preserving and validating \emph{essential} items (dates, values, percentages, legal citations, and registry/process identifiers), while allowing non-essential qualification/PII fields to be omitted to achieve meaningful condensation.
 
@@ -412,10 +412,10 @@ The fallback enforces visible structure: short lines, stable headings, bulletiza
 On the first occurrence, selected legal terms are annotated inline with simple definitions (Portuguese), which supports WCAG 3.1 intent for unusual words and abbreviations.
 
 \item \textit{Semantic integrity gate (level-aware):}
-Before returning, the output is validated to preserve essential legal information. In \texttt{light}, integrity is strict and aims to preserve nearly all numeric and legal references. In \texttt{medium}/\texttt{strong}, integrity is configured for summarization: it still preserves dates, values, percentages, legal citations and registry/process references, but allows omission of non-essential personal qualifications (e.g., CPF/RG/address) when they do not affect the legal meaning of the excerpt.
+Before returning, the output is validated to preserve essential legal information. In \texttt{light}, integrity is strict and aims to preserve nearly all numeric and legal references. In \texttt{medium}/\texttt{strong}, integrity is configured for summarization: it still preserves dates, values, percentages, legal citations and registry/process references, but allows omission of non-essential personal qualifications (e.g., CPF, RG, address) when they do not affect the legal meaning of the excerpt.
 
 \item \textit{Extension integration:}
-The MV3 manifest injects a content script and exposes \texttt{sidebar.css} as a web-accessible resource. The popup selects \texttt{level} and communicates via tab messaging. For PDFs, the prototype supports (a) forwarding Base64 through \texttt{/simplify} and (b) forwarding raw bytes through \texttt{/simplify-pdf}. For local \texttt{file://} PDFs, the user may need to explicitly allow file access for the extension in the browser settings.
+The MV3 manifest injects a content script and exposes sidebar.css as a web-accessible resource. The popup selects \texttt{level} and communicates via tab messaging. For PDFs, the prototype supports (a) forwarding Base64 through \texttt{/simplify} and (b) forwarding raw bytes through \texttt{/simplify-pdf}. For local \texttt{file://} PDFs, the user may need to explicitly allow file access for the extension in the browser settings.
 \end{itemize}
 
 \noindent Selected normalization rules (examples). Table~\ref{tab:normalization-examples} lists representative normalization issues and where in the pipeline they are handled.
