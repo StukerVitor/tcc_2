@@ -536,7 +536,7 @@ Second, a broader attitudinal evaluation was conducted with the questionnaire de
 \textbf{Stage} & \textbf{Primary goal} & \textbf{Material} & \textbf{Participants} & \textbf{Main outcome} \\
 \midrule
 Formative pre-test & Calibrate the prototype before broader exposure & 3 public legal documents, anonymized for the study; additional real files used internally during development. & 3 (legal domain) & Selection of the \texttt{medium} level as the best overall trade-off; refinement of prompts, glossary behavior, and document-handling heuristics. \\
-\addlinespace[2pt]
+\addlinespace[1pt]
 Broader questionnaire study & Measure perceived usability, usefulness, and adoption potential & 1 anonymized document per participant, presented in original and medium-simplified form. & 30 & Quantitative SUS/TAM-style evidence plus open-ended feedback on strengths and improvement opportunities. \\
 \bottomrule
 \end{tabularx}
@@ -592,11 +592,11 @@ These construct means concentrate in the upper range of the scale, suggesting th
 
 The overall SUS-style composite reinforces this interpretation. After linearly rescaling the ten reverse-aligned items, the instrument reached a mean of 90.4/100 ($SD = 9.8$), with median 92.5 and interquartile range from 87.5 to 97.5. In practical terms, this is a strong result for a local-first academic prototype. Moreover, 86.7\% of participants scored the experience at 80 or above, and 63.3\% scored it at 90 or above. Figure~\ref{fig:sus-distribution} shows the distribution.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
   \centering
   \caption{Distribution of the SUS-style composite (0--100).}
   \label{fig:sus-distribution}
-  \includegraphics[width=.82\linewidth]{images/sus_distribution.pdf}
+  \includegraphics[width=.76\linewidth]{images/sus_distribution.pdf}
   \figsource{prepared by the author (2026)}
 \end{figure}
 
@@ -606,10 +606,10 @@ The quality checks described in Section~5 also support a cautious but positive r
 
 Table~\ref{tab:item-results} presents the aligned item-level statistics. All ten items obtained means above 4.3 after reverse coding, and the lowest favorable rate was 90.0\%, observed for the two Behavioral Intention items. This helps show that the positive evaluation was not concentrated in a single isolated aspect of the experience.
 
-\begin{table}[H]\centering
+\begin{table}[!htbp]\centering
 \caption{Item-level scores after reverse coding of negative items.}
 \label{tab:item-results}
-\small
+\footnotesize
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}lccc@{}}
 \toprule
@@ -698,22 +698,22 @@ A third contribution lies in how the prototype is positioned. Participants repea
 
 Table~\ref{tab:lascas-comparison} positions LASCAS relative to the main studies discussed in Section~3.
 
-\begin{table}[H]\centering
+\begin{table}[!htbp]\centering
 \caption{Positioning of LASCAS relative to related work.}
 \label{tab:lascas-comparison}
-\small
-\setlength{\tabcolsep}{4pt}
-\renewcommand{\arraystretch}{1.15}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.06}
 \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.1cm} >{\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}p{3.1cm} X@{}}
 \toprule
 \textbf{Work} & \textbf{Main focus} & \textbf{Evaluation strategy} & \textbf{Relation to LASCAS} \\
 \midrule
 Garimella et al. (2022) & Simplification of English legal contracts & Human judgments and comparison with automatic metrics & Highlights the difficulty of aligning metrics with perceived simplicity; LASCAS advances the discussion through real-document use, integrity safeguards, and user-centered evidence. \\
-\addlinespace[2pt]
+\addlinespace[1pt]
 Alves et al. (2023) & Simplification of Brazilian Portuguese judicial summaries & Readability metrics and model comparison & Demonstrates readability gains in the Brazilian context; LASCAS extends the discussion by integrating document processing, interface, and practical evaluation with users. \\
-\addlinespace[2pt]
+\addlinespace[1pt]
 Athugodage et al. (2024) & Transfer learning with a newly built legal simplification corpus & Readability metrics and human evaluation & Shares the concern with data scarcity, but LASCAS emphasizes local execution and level-aware simplification instead of a new supervised corpus. \\
-\addlinespace[2pt]
+\addlinespace[1pt]
 Toivonen et al. (2025) and Zimina-Poirot et al. (2025) & Plain language, legal design, and responsible AI assistance & Conceptual and case-based framing of accessibility in law & LASCAS operationalizes this agenda in a concrete artifact, showing how plain-language support can be embedded in a local-first simplification workflow. \\
 \addlinespace[2pt]
 LASCAS (this work) & Local-first legal simplification for cognitive accessibility & Formative pre-test plus broader SUS/TAM-style user evaluation on real anonymized files & Combines accessibility goals, document engineering, semantic-integrity safeguards, glossary support, and applied evaluation in Brazilian legal Portuguese. \\
