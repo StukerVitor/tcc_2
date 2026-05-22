@@ -202,7 +202,7 @@ Related work was identified through a reproducible, funnel-style search across G
 \begin{figure}[H]
   \centering
   \caption{Funnel-style search and screening process for related work.}
-  \includegraphics[width=.4\linewidth]{images/research.pdf}
+  \includegraphics[width=.6\linewidth]{images/research.pdf}
   \label{fig:research_funnel}
   \figsource{prepared by the author (2026)}
 \end{figure}
@@ -237,7 +237,7 @@ LASCAS is a local-first pipeline that ingests HTML or PDF, normalizes legal arti
 \item \textit{Extension Shell (MV3):} the popup selects the simplification level and coordinates browser-side inputs through the content script, including DOM/selection extraction and picked PDF files; CSS sidebar is injected as a web-accessible resource for side-by-side viewing. PDFs can be forwarded as Base64 through /simplify or as binary uploads through /simplify-pdf, depending on browser constraints and file size.
 \end{itemize}
 
-Figure~\ref{fig:arch} summarizes the high-level architecture of LASCAS, including the user interface, local service, and document sources.
+Figure~\ref{fig:arch} summarizes the high-level architecture of LASCAS, including the user interface, local service, and document sources. The diagram should be read from the browser layer to the local runtime layer: user input enters through the extension, is routed to the local API, and is then processed by extraction, normalization, simplification, integrity validation, and final presentation stages. This organization reinforces the central design decision of the prototype: the language model is not isolated from the rest of the system, but embedded in a controlled workflow that prepares the input before generation and validates the output before returning it to the user.
 \begin{figure}[H]
   \centering
   \caption{Component-level architecture}
@@ -659,7 +659,7 @@ This subgroup stability is important for the broader argument of the thesis. A l
 
 \subsection{Qualitative Feedback}
 
-The open-ended responses add important texture to the numerical picture. A light thematic reading of the 30 comments identified four recurring themes: clearer understanding and easier reading, productivity gains and faster triage, practicality of the interface, and requests for more detail, formatting, or glossary support. Table~\ref{tab:theme-frequency} summarizes these frequencies as coded mentions. Because a single response could be coded into more than one theme, totals should be interpreted as theme occurrences rather than unique participants.
+The open-ended responses add important texture to the numerical picture. A light thematic reading of the 30 comments identified four recurring themes: clearer understanding and easier reading, productivity gains and faster triage, practicality of the interface, and requests for more detail, formatting, or glossary support. The coding was descriptive rather than exhaustive: its purpose was to identify the most recurrent perceptions that help explain the quantitative pattern, not to produce a full qualitative taxonomy. This is appropriate for the scope of the study, since the questionnaire was designed mainly to validate perceived usefulness and usability while still leaving space for participants to point out concrete strengths and improvement opportunities. Table~\ref{tab:theme-frequency} summarizes these frequencies as coded mentions. Because a single response could be coded into more than one theme, totals should be interpreted as theme occurrences rather than unique participants.
 
 \begin{table}[H]\centering
 \caption{Frequency of coded mentions in open-ended feedback.}
