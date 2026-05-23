@@ -513,7 +513,11 @@ This subsection outlines the scoring pipeline used to derive construct-level ind
 \mathrm{BI}&=\mathrm{mean}(Q4,\,\mathrm{rev}(Q10)).
 \end{aligned}
 \]
-For an optional SUS‐style composite (0–100), we linearly rescale the summed item scores, following benchmarking practice in recent literature \cite{hyzy2022susbench}.
+For the SUS-style composite, after reverse-coding the negative items, the ten item scores (each in the 1--5 range) are summed, producing a raw score from 10 to 50. This sum is then linearly rescaled to a 0--100 scale using the following equation:
+\[
+\mathrm{Composite} = \left(\sum_{i=1}^{10} item_i - 10\right) \times 2.5.
+\]
+This follows the same rescaling logic as the original SUS, adapted to the item set used in this study \cite{hyzy2022susbench}.
 
 \item \textit{Inconsistency check:} For each pair, we compute $\Delta=\lvert Q^{+}-\mathrm{rev}(Q^{-})\rvert$; large discrepancies (e.g., $\Delta>2$) are flagged as potential inattentive responses. Flags are reported as a data‐quality indicator and not used for automatic exclusion.
 
