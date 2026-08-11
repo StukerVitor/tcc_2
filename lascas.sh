@@ -289,7 +289,7 @@ do_status() {
   echo "== STATUS =="
   echo "- Backend dir: $BACKEND_DIR"
   echo "- Extension dir: $EXT_DIR"
-  echo "- Ollama: $OLLAMA_HOST -> $([[ port_listening "$OLLAMA_HOST" ]] && echo LISTENING || echo NOT_LISTENING)"
+  echo "- Ollama: $OLLAMA_HOST -> $(port_listening "$OLLAMA_HOST" && echo LISTENING || echo NOT_LISTENING)"
 
   local pid
   pid="$(read_pidfile "$PID_BACKEND")"

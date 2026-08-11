@@ -126,7 +126,7 @@ Article presented as a partial requirement to obtain the title of Bachelor in Co
 % Resumo em Português.
 %=======================================================================
 \begin{abstract}
-Legal documents are fundamental to civic participation, yet their inherent complexity creates significant barriers to comprehension, particularly for individuals with cognitive and learning disabilities. This study addresses the challenge of legal text inaccessibility by proposing LASCAS (Legal Accessibility and Simplification for Cognitive Aid System), a local-first prototype designed to simplify Brazilian legal Portuguese. The work is grounded in cognitive accessibility principles, the Plain Language movement, and Automatic Text Simplification (ATS), combining modern NLP techniques with semantic-integrity safeguards and accessibility-oriented presentation. Empirically, a formative pre-test with 3 legal-domain participants supported the adoption of the \texttt{medium} simplification level, while a broader questionnaire study with 30 participants produced consistently positive results: Perceived Ease of Use and Learnability both reached a mean of 4.68/5, Perceived Usefulness reached 4.63/5, and the SUS-style composite averaged 90.4/100, with 86.7\% of participants rating the experience at 80 or above. In particular, the high Ease of Use/Learnability scores and the 90.4/100 usability composite suggest that the prototype is already effective as a support tool for the initial reading, comprehension, and triage of legal documents. Overall, the results indicate that LASCAS is a promising approach to making legal information more approachable and to advancing access to justice and digital inclusion.
+Legal documents are fundamental to civic participation, yet their inherent complexity creates significant barriers to comprehension, particularly for individuals with cognitive and learning disabilities. This study addresses legal text inaccessibility by proposing LASCAS (Legal Accessibility and Simplification for Cognitive Aid System), a local-first prototype designed to simplify Brazilian legal Portuguese. The work is grounded in cognitive accessibility principles, the Plain Language movement, and Automatic Text Simplification (ATS), combining modern NLP techniques with semantic-integrity safeguards and accessibility-oriented presentation. Empirically, a formative pre-test with 3 legal-domain participants supported the adoption of the \texttt{medium} simplification level, and a broader questionnaire study with 30 participants produced consistently positive results: Perceived Ease of Use and Learnability both averaged 4.68/5, Perceived Usefulness 4.63/5, and the SUS-style composite 90.4/100, with 86.7\% of participants at 80 or above. A backend benchmark on consumer-grade hardware (8~GB RTX 4070 Laptop GPU) simplified a 4,392-word petition at the \texttt{medium} level in 153.5~s on average (about 35~s per 1,000 words) with near-saturated GPU utilization, evidencing the feasibility and hardware sensitivity of the local-first design. These results suggest that the prototype is already effective as a support tool for the initial reading, comprehension, and triage of legal documents, and that LASCAS is a promising approach to advancing access to justice and digital inclusion.
 \palavraschave{Text Simplification. Cognitive Accessibility. Natural Language Processing. Legal Tech. Transformer Models.}
 \end{abstract}
 
@@ -210,7 +210,7 @@ Locale-sensitive searches also targeted Portuguese and Russian efforts. After re
 \begin{figure}[H]
   \centering
   \caption{Funnel-style search and screening process for related work.}
-  \includegraphics[width=.6\linewidth]{images/research.pdf}
+  \includegraphics[width=.5\linewidth]{images/research.pdf}
   \label{fig:research_funnel}
   \figsource{prepared by the author (2026)}
 \end{figure}
@@ -452,7 +452,7 @@ The API enables CORS, increases keep-alive timeouts, and performs a best-effort 
 
 \subsection{Limitations}
 
-The current version of LASCAS should be understood as a local-first proof of concept, and several limitations follow directly from this design. Because extraction, preprocessing, validation, and simplification run on the user’s own machine, performance depends on available hardware and becomes more sensitive with long legal documents and large PDFs. This constraint also influenced the adoption of a lightweight local model configuration, which helps keep the system feasible on commodity machines but limits performance and domain specialization.
+The current version of LASCAS should be understood as a local-first proof of concept, and several limitations follow directly from this design. Because extraction, preprocessing, validation, and simplification run on the user’s own machine, performance depends on available hardware and becomes more sensitive with long legal documents and large PDFs. This constraint also influenced the adoption of a lightweight local model configuration, which helps keep the system feasible on commodity machines but limits performance and domain specialization. The performance benchmark reported in Section~6 quantifies this constraint on a concrete consumer-grade configuration.
 
 In addition, the underlying language model was not specifically fine-tuned on a broad corpus of Brazilian legal simplification pairs, which means that part of the system’s quality still relies on prompt design, preprocessing, integrity checks, and fallback rules. As a result, the output may occasionally miss stylistic or terminological nuances typical of highly formal legal and notarial documents.
 
@@ -528,7 +528,31 @@ This follows the same rescaling logic as the original SUS, adapted to the item s
 \item \textit{Outputs and Reporting:} We present: (i) construct means for PEOU, Learnability, PU, Performance, and BI; (ii) the optional SUS‐style composite (0–100); (iii) the proportion of responses flagged by the inconsistency check; and (iv) key themes from the open‐ended answers. This structure aligns with recent integrated SUS+TAM evaluations in educational and productivity technologies.
 \end{itemize}
 
+\subsection{Performance Benchmark}
 
+To complement the attitudinal instrument, in which performance appears only as a perceived construct (Q3/Q7), we also measured the objective runtime behavior of the backend. The benchmark reproduces the main condition of the broader study: the public petition most frequently assessed by participants (4,392 extracted words) is simplified at the \texttt{medium} level through the same \texttt{/simplify-pdf} endpoint used by the extension. After a priming request that keeps model loading out of the measurements, 10 identical warm repetitions are executed by a self-contained script kept in the project repository, with no changes to the pipeline: processing telemetry comes from the instrumentation the API already returns, end-to-end latency is measured on the client side, and GPU memory, GPU utilization, and RAM are sampled at 1-second intervals. The reported metrics are end-to-end latency, PDF extraction and transport time, normalized input throughput (words per second; seconds per 1,000 words), and the resource-usage envelope. Table~\ref{tab:bench-hw} summarizes the hardware and software configuration, a mid-range consumer laptop consistent with the local-first premise of the prototype.
+
+\begin{table}[H]\centering
+\caption{Hardware and software configuration used in the performance benchmark.}
+\label{tab:bench-hw}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.12}
+\begin{tabularx}{\textwidth}{@{}l >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Component} & \textbf{Configuration} \\
+\midrule
+Machine & Alienware m16 R1 (laptop) \\
+CPU & Intel Core i9-13900HX (32 logical processors) \\
+RAM & 31 GB available to the host OS; 15.5 GB provisioned to WSL2 \\
+GPU & NVIDIA GeForce RTX 4070 Laptop GPU, 8 GB VRAM (driver 610.88) \\
+OS / environment & Windows 11 Pro with WSL2 (Ubuntu 26.04 LTS) \\
+Backend runtime & Node.js v24.19.0; Ollama 0.32.7 \\
+Language model & Llama 3.1 8B instruct (Q4\_K\_M, 8,192-token context, system prompt embedded via Ollama Modelfile) \\
+\bottomrule
+\end{tabularx}
+\tablesource{prepared by the author (2026)}
+\end{table}
 
 \section{Results and Discussion}
 
@@ -536,7 +560,7 @@ This section presents the empirical results obtained with LASCAS and discusses t
 
 \subsection{Evaluation Scope and Rationale}
 
-The empirical stage was organized in two complementary moments. First, a formative pre-test was conducted with three participants from the legal domain using three public legal files that were anonymized for the study. This smaller round had an exploratory role: it helped verify whether the prototype had reached a satisfactory maturity threshold for a broader trial, identify which failure modes still required attention, and define a feasible evaluation format. A key outcome of this pre-test was the decision to adopt the \texttt{medium} simplification level in the larger study, since it offered the best balance between readability gain, semantic preservation, and task duration.
+The empirical stage was organized in two complementary moments with human participants, complemented by the automated backend performance benchmark defined in Section~5. First, a formative pre-test was conducted with three participants from the legal domain using three public legal files that were anonymized for the study. This smaller round had an exploratory role: it helped verify whether the prototype had reached a satisfactory maturity threshold for a broader trial, identify which failure modes still required attention, and define a feasible evaluation format. A key outcome of this pre-test was the decision to adopt the \texttt{medium} simplification level in the larger study, since it offered the best balance between readability gain, semantic preservation, and task duration.
 
 Second, a broader attitudinal evaluation was conducted with the questionnaire described in Section~5. In this stage, each participant assessed one legal document simplified at the \texttt{medium} level. This decision intentionally reduced reading burden and kept the session short enough to avoid fatigue, while still allowing participants to compare the original and simplified versions with adequate attention. The formative pre-test with three legal-domain participants was therefore used as a calibration step, not as a statistically conclusive comparison between all levels. Running \texttt{light}, \texttt{medium}, and \texttt{strong} in the broader study would have substantially increased reading time and introduced fatigue effects, since each participant would need to inspect multiple versions of the same legal content. For this reason, the broader evaluation focused on the level that had shown the best practical trade-off in the pre-test, while a controlled comparison between simplification levels remains a direction for future evaluation. Table~\ref{tab:eval-scope} summarizes the evaluation scope.
 
@@ -554,6 +578,8 @@ Second, a broader attitudinal evaluation was conducted with the questionnaire de
 Formative pre-test & Calibrate the prototype before broader exposure & 3 public legal documents, anonymized for the study; additional real files used internally during development. & 3 (legal domain) & Selection of the \texttt{medium} level as the best overall trade-off; refinement of prompts, glossary behavior, and document-handling heuristics. \\
 \addlinespace[1pt]
 Broader questionnaire study & Measure perceived usability, usefulness, and adoption potential & 1 anonymized document per participant, presented in original and medium-simplified form. & 30 & Quantitative SUS/TAM-style evidence plus open-ended feedback on strengths and improvement opportunities. \\
+\addlinespace[1pt]
+Backend performance benchmark & Characterize objective runtime behavior on consumer hardware & The petition most used in the broader study, at the \texttt{medium} level, 10 warm repetitions. & n/a (automated) & Latency, throughput, and resource envelope; model inference confirmed as the dominant computational cost. \\
 \bottomrule
 \end{tabularx}
 \tablesource{prepared by the author (2026)}
@@ -575,7 +601,7 @@ The broader questionnaire stage included 30 respondents. The sample was intentio
   \figsource{prepared by the author (2026)}
 \end{figure}
 
-This composition is relevant because it brings together two audiences that matter for the problem addressed here. Participants with legal-domain familiarity help indicate whether the simplified output remains dependable as an initial reading aid, while non-specialists help show whether the system actually lowers the entry barrier created by legal language. For a tool whose purpose is to improve accessibility, positive feedback distributed across both groups is more meaningful than approval restricted to expert users alone.
+This composition is relevant because it brings together two audiences that matter for the problem addressed here. Participants with legal-domain familiarity help indicate whether the simplified output remains dependable as an initial reading aid, while non-specialists help show whether the system actually lowers the entry barrier created by legal language. For a tool whose purpose is to improve accessibility, positive feedback distributed across both groups is more meaningful than approval restricted to expert users alone. The balanced split also supports the subgroup reading presented later in this section, since it allows the same descriptive indicators to be compared across profiles of equal size. Educational background plays a similar role: because part of the sample did not complete higher education, the evaluation includes readers closer to the literacy profiles that motivate cognitive accessibility work in the first place. This does not turn the sample into a clinical population, but it brings the test conditions closer to the audiences the prototype intends to serve.
 
 \subsection{Quantitative Results}
 
@@ -700,11 +726,43 @@ Requests for more detail, formatting, or glossary support & 9 \\
 \tablesource{prepared by the author (2026)}
 \end{table}
 
-The qualitative feedback aligns closely with the quantitative results. Many participants described the extension in terms of orientation, overview, and first understanding, which suggests that LASCAS is not being interpreted as a replacement for full legal reading. Instead, it is seen as a support layer that lowers the initial barrier to entry into the document. This is precisely the role expected from a cognitively oriented accessibility tool.
+The qualitative feedback aligns closely with the quantitative results. Many participants described the extension in terms of orientation, overview, and first understanding, which suggests that LASCAS is not being interpreted as a replacement for full legal reading. Instead, it is seen as a support layer that lowers the initial barrier to entry into the document. This is precisely the role expected from a cognitively oriented accessibility tool. The co-occurrence of comprehension and productivity themes reinforces this reading: for many respondents, understanding the document better and dealing with it faster were not competing benefits, but two effects of the same reduction in cognitive load. Comments about practicality and ease of use, in turn, echo the high PEOU scores in spontaneous form, strengthening the construct-level interpretation with unprompted evidence.
 
 One of the most illustrative comments reported a perceived reduction in reading time from approximately eight minutes on the original file to four minutes with the support of the extension. Although this is anecdotal rather than experimental timing evidence, it captures a practical advantage that appears repeatedly across the responses: the tool seems useful not only for understanding more, but for understanding earlier. Other comments reinforce this idea by connecting the prototype to triage, quick consultation, high-volume reading routines, and communication with clients in more accessible language.
 
-An equally relevant aspect is the nature of the suggested improvements. Participants mostly asked for refinement rather than redesign: more detail in specific passages, better output formatting, richer glossary support, and, in some cases, even faster processing. This type of feedback is valuable because it suggests that the core proposition was accepted and that the next stage is one of quality improvement rather than basic justification.
+An equally relevant aspect is the nature of the suggested improvements. Participants mostly asked for refinement rather than redesign: more detail in specific passages, better output formatting, richer glossary support, and, in some cases, even faster processing. This type of feedback is valuable because it suggests that the core proposition was accepted and that the next stage is one of quality improvement rather than basic justification. It is also notable that the suggestions concentrate on presentation, coverage, and speed rather than on the dependability of the simplified content, an encouraging signal for a tool operating in a domain where trust is decisive.
+
+\subsection{Backend Performance}
+
+Table~\ref{tab:bench-results} consolidates the benchmark defined in Section~5. The ten warm repetitions were remarkably stable: end-to-end latency averaged 153.5~s (SD 1.1~s; median 153.1~s; range 153.0--156.4~s), a coefficient of variation below 1\%, which corresponds to 28.6 input words per second, or approximately 35~s per 1,000 words, at the \texttt{medium} level. PDF extraction and transport accounted for 54~ms on average, below 0.1\% of the total, so virtually the entire cost of a request lies in the simplification core and, specifically, in the local model calls: each repetition issued 10 calls over 5 chunks, with no timeouts, at an average of roughly 15~s per call. A short priming request of 45 words completed in 4.3~s, indicating that per-request overhead is small once the model is resident and that latency is dominated by generation over long inputs rather than by fixed costs.
+
+\begin{table}[H]\centering
+\caption{Backend performance at the \texttt{medium} level (10 warm runs, 4,392-word petition).}
+\label{tab:bench-results}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.12}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Metric} & \textbf{Result} \\
+\midrule
+End-to-end latency (mean $\pm$ SD) & 153.5 $\pm$ 1.1 s \\
+End-to-end latency (median; min--max) & 153.1 s; 153.0--156.4 s \\
+PDF extraction and transport (mean) & 54 ms ($<$0.1\% of total) \\
+Input throughput & 28.6 words/s ($\approx$35 s per 1,000 words) \\
+Model calls per run & 10 across 5 chunks (no timeouts) \\
+Mean GPU utilization & 94.1\% (per-run means 92.6--95.3\%; peaks at 100\%) \\
+Peak GPU memory (global) & 6,657 MiB of 8,188 MiB \\
+Sustained GPU power & 88--91 W \\
+Peak RAM (WSL2) & $\approx$5 GB \\
+\bottomrule
+\end{tabular}
+\tablesource{prepared by the author (2026)}
+\end{table}
+
+The resource telemetry gives concrete form to the hardware sensitivity acknowledged in Section~4. Mean GPU utilization stayed around 94\% (per-run means between 92.6\% and 95.3\%, with peaks at 100\%) throughout every run, global GPU memory peaked at 6,657~MiB of the 8,188~MiB available with the quantized model resident, and board power was sustained around 88--91~W, while the CPU-side footprint stayed modest (peak of about 5~GB of RAM in the WSL2 environment). In practical terms, the accelerator is nearly saturated during the entire simplification window: the configuration of Table~\ref{tab:bench-hw} is sufficient, but with limited headroom, and weaker GPUs, smaller VRAM budgets, or CPU-only execution can be expected to push latency well beyond the values reported here. This measurement turns the hardware requirement, previously stated qualitatively, into an explicit operating envelope for the local-first premise.
+
+Finally, the objective numbers help contextualize the perceived-performance results. Participants rated the pace of the system very favorably (Q3 was the highest-scoring item, at 4.83, and the Performance construct averaged 4.65) even though a full-document pass takes about two and a half minutes on this configuration. This is coherent with the triage-oriented usage pattern identified in the qualitative feedback: a single wait of a few minutes replaces a longer unassisted reading effort, as in the report of reading time dropping from roughly eight to four minutes. The benchmark is intentionally scoped to the main study condition, one document at the \texttt{medium} level on one machine; characterizing scaling across document sizes, simplification levels, and hardware tiers remains future work.
 
 \subsection{Discussion and Positioning in the Literature}
 
@@ -712,9 +770,9 @@ The results position LASCAS in an interesting place relative to the studies revi
 
 A first contribution is operational. While several related studies focus primarily on training strategies or corpus construction, LASCAS contributes a full prototype perspective. The system is not only a simplification model; it is a document-oriented workflow that includes extraction, legal-aware normalization, level-aware simplification, integrity validation, glossary support, and browser-side presentation. For accessibility purposes, this matters because users experience the whole interaction chain, not only the local quality of sentence rewriting.
 
-A second contribution concerns evaluation. As already suggested by Garimella et al.~(2022), automatic metrics and human judgment do not necessarily move in parallel in legal simplification. The present study extends that point by showing that user-centered evidence can be organized around perceived clarity, usefulness, and workflow fit, rather than around simplification scores alone. In this sense, the contribution of LASCAS is not to replace metric-oriented research, but to complement it with evidence of value in realistic use.
+A second contribution concerns evaluation. As already suggested by Garimella et al.~(2022), automatic metrics and human judgment do not necessarily move in parallel in legal simplification. The present study extends that point by showing that user-centered evidence can be organized around perceived clarity, usefulness, and workflow fit, rather than around simplification scores alone. In this sense, the contribution of LASCAS is not to replace metric-oriented research, but to complement it with evidence of value in realistic use. The performance benchmark adds an objective layer to this argument: the studies reviewed in Section~3 concentrate on output quality and do not characterize runtime feasibility on end-user hardware, while the local-first premise of LASCAS makes this dimension unavoidable. Reporting latency, throughput, and resource usage alongside perceived usability therefore broadens the evidence base on which adoption decisions for legal simplification tools can be discussed.
 
-A third contribution lies in how the prototype is positioned. Participants repeatedly framed the system as support for initial reading, triage, and communication, not as a substitute for specialized legal interpretation. This is a productive framing for the current stage of legal AI: tools of this kind add most value when they mediate access, not when they claim autonomous legal authority. This positioning also helps explain why the prototype was evaluated as a complete workflow rather than as a benchmark-only simplification model. The relevant question is not only whether individual sentences become shorter, but whether the interaction helps users approach a legal document with clearer orientation and fewer barriers. In this respect, LASCAS complements model-centered work by emphasizing the practical conditions under which simplification becomes usable in a real reading situation. Table~\ref{tab:lascas-comparison} positions LASCAS relative to the main studies discussed in Section~3.
+A third contribution lies in how the prototype is positioned. Participants repeatedly framed the system as support for initial reading, triage, and communication, not as a substitute for specialized legal interpretation. This is a productive framing for the current stage of legal AI: tools of this kind add most value when they mediate access, not when they claim autonomous legal authority. This framing is also consistent with the human-oversight perspective discussed in Section~3, in which AI assistance is expected to augment rather than replace legal judgment \cite{toivonen2025jelt, zimina2025gai}; LASCAS operationalizes that expectation by keeping the tool bounded to comprehension support, with the original document always in view. This positioning also helps explain why the prototype was evaluated as a complete workflow rather than as a benchmark-only simplification model. The relevant question is not only whether individual sentences become shorter, but whether the interaction helps users approach a legal document with clearer orientation and fewer barriers. In this respect, LASCAS complements model-centered work by emphasizing the practical conditions under which simplification becomes usable in a real reading situation. The subgroup stability reported earlier reinforces this mediating role, indicating that it is recognized by specialists and non-specialists alike. Table~\ref{tab:lascas-comparison} positions LASCAS relative to the main studies discussed in Section~3.
 
 \begin{table}[H]\centering
 \caption{Positioning of LASCAS relative to related work.}
@@ -740,7 +798,7 @@ LASCAS (this work) & Local-first legal simplification for cognitive accessibilit
 \tablesource{prepared by the author (2026)}
 \end{table}
 
-Taken together, these findings suggest that the value of LASCAS lies less in competing with purely model-centered approaches and more in showing how simplification, accessibility, and real use can be articulated within the same artifact. That applied positioning complements well the studies that are more narrowly focused on corpora, metrics, or training architecture.
+Taken together, these findings suggest that the value of LASCAS lies less in competing with purely model-centered approaches and more in showing how simplification, accessibility, and real use can be articulated within the same artifact, complementing studies more narrowly focused on corpora, metrics, or training architecture.
 
 \section{Conclusion}
 
@@ -750,13 +808,13 @@ The thesis contributes at three levels. Conceptually, it connects cognitive acce
 
 The results suggest that the value of LASCAS lies not only in rewriting difficult passages, but also in reorganizing access to the legal document. Rather than competing with specialized legal reading, the tool acts as an intermediate support layer that helps users grasp the document's central theme, function, and most relevant points more quickly.
 
-This applied positioning is reinforced by the methodological stance of the work: the use of real documents, distinct participant profiles, and local execution conditions brought the evaluation closer to realistic contexts of use. The local-first design also made visible the practical trade-off between privacy, feasibility, latency, and model capacity, which is central for legal documents that may contain sensitive information. In this sense, the contribution of the prototype is practical as well as academic, since it demonstrates a feasible path for accessibility-oriented legal simplification beyond purely model-centered experiments.
+This applied positioning is reinforced by the methodological stance of the work: the use of real documents, distinct participant profiles, and local execution conditions brought the evaluation closer to realistic contexts of use. The local-first design also made visible the practical trade-off between privacy, feasibility, latency, and model capacity, which is central for legal documents that may contain sensitive information. The backend benchmark made this trade-off concrete: on a consumer laptop GPU, a full petition was simplified in about two and a half minutes with the accelerator nearly saturated, showing that model inference defines the performance boundary of the approach. In this sense, the contribution of the prototype is practical as well as academic, since it demonstrates a feasible path for accessibility-oriented legal simplification beyond purely model-centered experiments.
 
 From the perspective of the research field, the thesis reinforces that simplifying legal texts is not only a text-generation challenge, but also a mediation problem between specialized language and public understanding. It also suggests that accessibility in the legal domain depends not only on model quality, but on the broader interaction between document processing, semantic safeguards, and user-facing presentation. This broader view is especially relevant in legal contexts, where readability gains must be balanced with the preservation of essential meaning and trustworthy user support.
 
-The study therefore points to a design direction in which legal simplification tools should be assessed not only by whether they produce simpler sentences, but also by whether they help users approach documents with more orientation, confidence, and control. Looking ahead, LASCAS opens directions for broader evaluations with objective comprehension tasks, richer glossary support, stronger PDF handling, OCR integration, and models better adapted to Brazilian legal Portuguese.
+The study therefore points to a design direction in which legal simplification tools should be assessed not only by whether they produce simpler sentences, but also by whether they help users approach documents with more orientation, confidence, and control. Looking ahead, LASCAS opens directions for broader evaluations with objective comprehension tasks, richer glossary support, stronger PDF handling, OCR integration, latency optimizations for long documents, and models better adapted to Brazilian legal Portuguese.
 
-In summary, LASCAS demonstrates that AI-assisted legal simplification can generate concrete gains in perceived clarity, usefulness, and accessibility without depending on excessively complex infrastructure. More than an isolated experiment, this work offers a solid basis for future evolution and supports the idea that language technologies can contribute in a practical way to reducing the distance between legal documents and the people who need to understand them.
+In summary, LASCAS demonstrates that AI-assisted legal simplification can generate concrete gains in perceived clarity, usefulness, and accessibility without depending on excessively complex infrastructure. More than an isolated experiment, this work offers a solid basis for future evolution and supports the idea that language technologies can practically reduce the distance between legal documents and the people who need to understand them.
 
 Its main contribution is therefore not a claim of full automation, but a practical demonstration that legal AI can be designed as a careful layer of support for comprehension. By keeping the system bounded to initial reading and triage, the work preserves the distinction between accessibility support and legal interpretation. This distinction is important for future development because it allows improvements in model quality, document coverage, and evaluation methods without changing the central role of the tool: helping users approach legal information with less friction and more autonomy.
 
