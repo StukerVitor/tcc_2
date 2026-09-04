@@ -772,29 +772,37 @@ A first contribution is operational. While several related studies focus primari
 
 A second contribution concerns evaluation. As already suggested by Garimella et al.~(2022), automatic metrics and human judgment do not necessarily move in parallel in legal simplification. The present study extends that point by showing that user-centered evidence can be organized around perceived clarity, usefulness, and workflow fit, rather than around simplification scores alone. In this sense, the contribution of LASCAS is not to replace metric-oriented research, but to complement it with evidence of value in realistic use. The performance benchmark adds an objective layer to this argument: the studies reviewed in Section~3 concentrate on output quality and do not characterize runtime feasibility on end-user hardware, while the local-first premise of LASCAS makes this dimension unavoidable. Reporting latency, throughput, and resource usage alongside perceived usability therefore broadens the evidence base on which adoption decisions for legal simplification tools can be discussed.
 
-A third contribution lies in how the prototype is positioned. Participants repeatedly framed the system as support for initial reading, triage, and communication, not as a substitute for specialized legal interpretation. This is a productive framing for the current stage of legal AI: tools of this kind add most value when they mediate access, not when they claim autonomous legal authority. This framing is also consistent with the human-oversight perspective discussed in Section~3, in which AI assistance is expected to augment rather than replace legal judgment \cite{toivonen2025jelt, zimina2025gai}; LASCAS operationalizes that expectation by keeping the tool bounded to comprehension support, with the original document always in view. This positioning also helps explain why the prototype was evaluated as a complete workflow rather than as a benchmark-only simplification model. The relevant question is not only whether individual sentences become shorter, but whether the interaction helps users approach a legal document with clearer orientation and fewer barriers. In this respect, LASCAS complements model-centered work by emphasizing the practical conditions under which simplification becomes usable in a real reading situation. The subgroup stability reported earlier reinforces this mediating role, indicating that it is recognized by specialists and non-specialists alike. Table~\ref{tab:lascas-comparison} positions LASCAS relative to the main studies discussed in Section~3.
+A third contribution lies in how the prototype is positioned. Participants repeatedly framed the system as support for initial reading, triage, and communication, not as a substitute for specialized legal interpretation. This is a productive framing for the current stage of legal AI: tools of this kind add most value when they mediate access, not when they claim autonomous legal authority. This framing is also consistent with the human-oversight perspective discussed in Section~3, in which AI assistance is expected to augment rather than replace legal judgment \cite{toivonen2025jelt, zimina2025gai}; LASCAS operationalizes that expectation by keeping the tool bounded to comprehension support, with the original document always in view. This positioning also helps explain why the prototype was evaluated as a complete workflow rather than as a benchmark-only simplification model. The relevant question is not only whether individual sentences become shorter, but whether the interaction helps users approach a legal document with clearer orientation and fewer barriers. In this respect, LASCAS complements model-centered work by emphasizing the practical conditions under which simplification becomes usable in a real reading situation. The subgroup stability reported earlier reinforces this mediating role, indicating that it is recognized by specialists and non-specialists alike. Table~\ref{tab:lascas-comparison} positions LASCAS relative to the main studies discussed in Section~3. Toivonen et al. (2025) and Zimina-Poirot et al. (2025) are conceptual contributions, so the implementation-oriented dimensions do not apply to them.
 
 \begin{table}[H]\centering
-\caption{Positioning of LASCAS relative to related work.}
+\caption{Positioning of LASCAS relative to related work ($\checkmark$ = addressed by the study; -- = not addressed).}
 \label{tab:lascas-comparison}
 \footnotesize
-\setlength{\tabcolsep}{3pt}
-\renewcommand{\arraystretch}{1.06}
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.1cm} >{\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}p{3.1cm} X@{}}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{5.4cm}cccccc@{}}
 \toprule
-\textbf{Work} & \textbf{Main focus} & \textbf{Evaluation strategy} & \textbf{Relation to LASCAS} \\
+\textbf{Dimension} &
+\textbf{\shortstack{Garimella\\(2022)}} &
+\textbf{\shortstack{Alves\\(2023)}} &
+\textbf{\shortstack{Athugodage\\(2024)}} &
+\textbf{\shortstack{Toivonen\\(2025)}} &
+\textbf{\shortstack{Zimina-\\Poirot\\(2025)}} &
+\textbf{\shortstack{Stüker\\(2026)}} \\
 \midrule
-Garimella et al. (2022) & Simplification of English legal contracts & Human judgments and comparison with automatic metrics & Highlights the difficulty of aligning metrics with perceived simplicity; LASCAS advances the discussion through real-document use, integrity safeguards, and user-centered evidence. \\
-\addlinespace[1pt]
-Alves et al. (2023) & Simplification of Brazilian Portuguese judicial summaries & Readability metrics and model comparison & Demonstrates readability gains in the Brazilian context; LASCAS extends the discussion by integrating document processing, interface, and practical evaluation with users. \\
-\addlinespace[1pt]
-Athugodage et al. (2024) & Transfer learning with a newly built legal simplification corpus & Readability metrics and human evaluation & Shares the concern with data scarcity, but LASCAS emphasizes local execution and level-aware simplification instead of a new supervised corpus. \\
-\addlinespace[1pt]
-Toivonen et al. (2025) and Zimina-Poirot et al. (2025) & Plain language, legal design, and responsible AI assistance & Conceptual and case-based framing of accessibility in law & LASCAS operationalizes this agenda in a concrete artifact, showing how plain-language support can be embedded in a local-first simplification workflow. \\
-\addlinespace[2pt]
-LASCAS (this work) & Local-first legal simplification for cognitive accessibility & Formative pre-test plus broader SUS/TAM-style user evaluation on real anonymized files & Combines accessibility goals, document engineering, semantic-integrity safeguards, glossary support, and applied evaluation in Brazilian legal Portuguese. \\
+PT-BR legal text & -- & $\checkmark$ & -- & -- & -- & $\checkmark$ \\
+Parallel corpus built & -- & $\checkmark$ & $\checkmark$ & -- & -- & -- \\
+Model training / fine-tuning & $\checkmark$ & $\checkmark$ & $\checkmark$ & -- & -- & -- \\
+Automatic quality metrics & $\checkmark$ & $\checkmark$ & $\checkmark$ & -- & -- & -- \\
+Evaluation with people & $\checkmark$ & $\checkmark$ & $\checkmark$ & -- & -- & $\checkmark$ \\
+Plain language / human oversight & -- & -- & -- & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+\addlinespace[4pt]
+Local-first execution & -- & -- & -- & -- & -- & $\checkmark$ \\
+Automated integrity check & -- & -- & -- & -- & -- & $\checkmark$ \\
+End-user tool & -- & -- & -- & -- & -- & $\checkmark$ \\
+Runtime cost reported & -- & -- & -- & -- & -- & $\checkmark$ \\
 \bottomrule
-\end{tabularx}
+\end{tabular}
 \tablesource{prepared by the author (2026)}
 \end{table}
 
