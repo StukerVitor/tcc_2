@@ -217,7 +217,7 @@ Locale-sensitive searches also targeted Portuguese and Russian efforts. After re
 
 \textbf{\cite{garimella2022insights}} explored text simplification (TS) for legal contracts, highlighting the lack of parallel data as a key challenge. By evaluating unsupervised methods and a supervised BART model, they found significant \textit{disagreement among legal experts on simplicity} and \textit{weak correlations between automatic metrics and human judgments} \cite{garimella2022insights}. Their work underscored the trade-offs between fluency, meaning preservation, and simplification level.
 
-\textbf{\cite{alves2023automatic}} focus on Brazilian Portuguese \textit{judicial summaries}, tackling data scarcity by generating a synthetic parallel dataset with the unsupervised MUSS model \cite{alves2023automatic}. This data was then used to train supervised Transformer and NMT models. Their evaluation showed that most methods, especially the Transformer model and MUSS combined with translation, \textit{improved Flesch Reading Ease (FRE) scores} over the original summaries.
+\textbf{\cite{alves2023automatic}} focus on Brazilian Portuguese \textit{judicial summaries}, tackling data scarcity by generating a synthetic parallel dataset with the unsupervised MUSS model \cite{alves2023automatic}. This data was then used to train supervised Transformer and NMT models. Their evaluation showed that most methods, especially the Transformer model and MUSS combined with translation, \textit{improved Flesch Reading Ease (FRE) scores} over the original summaries. These readability gains were complemented by a small survey with 16 participants.
 
 \textbf{\cite{athugodage2024transfer}} address data scarcity for Russian legal text by creating a parallel corpus that pairs official legal documents with plain-language explanations from the "Rossiyskaya Gazeta" newspaper \cite{athugodage2024transfer}. Using this dataset, they \textit{fine-tuned T5 and GPT models} which, despite poor ROUGE scores, achieved good results in SARI and readability metrics and often exceeded human-written commentaries in human evaluation.
 
@@ -732,7 +732,7 @@ The nature of the suggested improvements is equally relevant. Participants mostl
 
 \subsection{Backend Performance}
 
-Table~\ref{tab:bench-results} consolidates the benchmark defined in Section~5. The ten warm repetitions were remarkably stable, with a coefficient of variation below 1\% in end-to-end latency, which corresponds to 28.6 input words per second, or approximately 35~s per 1,000 words, at the \texttt{medium} level.
+Table~\ref{tab:bench-results} consolidates the benchmark defined in Section~5. The ten warm repetitions were remarkably stable, with a coefficient of variation below 1\% in end-to-end latency. At the \texttt{medium} level, this corresponds to 28.6 input words per second, or approximately 35~s per 1,000 words.
 
 \begin{table}[H]\centering
 \caption{Backend performance at the \texttt{medium} level (10 warm runs, 4,392-word petition).}
@@ -758,7 +758,7 @@ Peak RAM (WSL2) & $\approx$5 GB \\
 \tablesource{prepared by the author (2026)}
 \end{table}
 
-The distribution of that cost is informative. PDF extraction and transport accounted for 54~ms on average, below 0.1\% of the total, so virtually the entire cost of a request lies in the simplification core and, specifically, in the local model calls: each repetition issued 10 calls over 5 chunks, with no timeouts, at an average of roughly 15~s per call. A short priming request of 45 words completed in 4.3~s, indicating that per-request overhead is small once the model is resident and that latency is dominated by generation over long inputs rather than by fixed costs.
+That total time is unevenly distributed across the pipeline. PDF extraction and transport accounted for 54~ms on average, below 0.1\% of the total, so virtually the entire cost of a request lies in the simplification core and, specifically, in the local model calls: each repetition issued 10 calls over 5 chunks, with no timeouts, at an average of roughly 15~s per call. A short priming request of 45 words completed in 4.3~s, indicating that per-request overhead is small once the model is resident and that latency is dominated by generation over long inputs rather than by fixed costs.
 
 The resource telemetry gives concrete form to the hardware sensitivity acknowledged in Section~4. Mean GPU utilization stayed around 94\% (per-run means between 92.6\% and 95.3\%, with peaks at 100\%) throughout every run, global GPU memory peaked at 6,657~MiB of the 8,188~MiB available with the quantized model resident, and board power was sustained around 88--91~W, while the CPU-side footprint stayed modest (peak of about 5~GB of RAM in the WSL2 environment). In practical terms, the accelerator is nearly saturated during the entire simplification window: the configuration of Table~\ref{tab:bench-hw} is sufficient, but with limited headroom, and weaker GPUs, smaller VRAM budgets, or CPU-only execution can be expected to push latency well beyond the values reported here. This measurement turns the hardware requirement, previously stated qualitatively, into an explicit operating envelope for the local-first premise.
 
@@ -775,7 +775,7 @@ A second contribution concerns evaluation. As already suggested by Garimella et 
 A third contribution lies in how the prototype is positioned. Participants repeatedly framed the system as support for initial reading, triage, and communication, not as a substitute for specialized legal interpretation. This is a productive framing for the current stage of legal AI: tools of this kind add most value when they mediate access, not when they claim autonomous legal authority. It is also consistent with the human-oversight perspective discussed in Section~3, in which AI assistance is expected to augment rather than replace legal judgment \cite{toivonen2025jelt, zimina2025gai}; LASCAS operationalizes that expectation by keeping the tool bounded to comprehension support, with the original document always in view. The subgroup stability reported earlier reinforces this mediating role, indicating that it is recognized by specialists and non-specialists alike. Table~\ref{tab:lascas-comparison} positions LASCAS relative to the main studies discussed in Section~3. Toivonen et al. (2025) and Zimina-Poirot et al. (2025) are conceptual contributions, so the implementation-oriented dimensions do not apply to them.
 
 \begin{table}[H]\centering
-\caption{Positioning of LASCAS relative to related work ($\checkmark$ = addressed by the study; -- = not addressed).}
+\caption{Positioning of LASCAS relative to related work ($\checkmark$ = addressed by the study; -- = not addressed or not applicable).}
 \label{tab:lascas-comparison}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
