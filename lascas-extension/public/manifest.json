@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "LASCAS - Legal Simplification (Local)",
+  "version": "0.1.0",
+  "action": { "default_title": "LASCAS", "default_popup": "index.html" },
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": ["http://localhost:5179/*", "<all_urls>"],
+  "content_scripts": [
+    { "matches": ["<all_urls>"], "js": ["content.js"], "run_at": "document_idle" }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["sidebar.css"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

@@ -1,0 +1,861 @@
+%
+% Exemplo LaTeX de artigo UNISINOS
+%
+% Elaborado com base nas orientações dadas no documento
+% ``GUIA PARA ELABORAÇÃO DE TRABALHOS ACADÊMICOS''
+% disponível no site da biblioteca da Unisinos.
+% http://www.unisinos.br/biblioteca
+% 
+% Os elementos textuais abaixo são apresentados na ordem em que devem
+% aparecer no documento.  Repare que nem todos são obrigatórios - isso
+% é devidamente indicado em cada caso.
+%
+% Comentários abaixo colocados entre aspas (`` '') foram
+% extraídos diretamente do documento da biblioteca.
+%
+% Este documento é de domínio público.
+%
+
+%=======================================================================
+% Declarações iniciais identificando a classe de documento e
+% selecionando alguns pacotes adicionais.
+%
+% As opções disponíveis (separe-as com vírgulas, sem espaço) são:
+% - twoside: Formata o documento para impressão frente-e-verso
+%   (o default é somente-frente)
+% - english,brazilian,french,german,etc.: idiomas usados no documento.
+%   Deve ser colocado por último o idioma principal.
+%=======================================================================
+\documentclass[english]{UNISINOSartigo} %twoside
+\usepackage[utf8]{inputenc} % charset do texto (utf8, latin1, etc.)
+\usepackage[T1]{fontenc} % encoding da fonte (afeta a sep. de sílabas)
+\usepackage{graphicx} % comandos para gráficos e inclusão de figuras
+\usepackage{bibentry} % para inserir refs. bib. no meio do texto
+\usepackage{float}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{newfloat}
+\usepackage{setspace}
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[export]{adjustbox}
+\usepackage{tabularx}
+
+% Texto "Fonte" (genérico p/ qualquer float)
+\newcommand{\floatsource}[1]{\caption*{\footnotesize\textit{Source: #1}}}
+% linha de fonte abaixo do algoritmo
+\newcommand{\algsourcebelow}[1]{%
+  \par\vspace{2pt}%
+  {\centering\footnotesize\textit{Source: #1}\par}%
+}
+
+% Aliases semânticos (use qualquer um deles)
+\newcommand{\tablesource}[1]{\floatsource{#1}}
+\newcommand{\figsource}[1]{\floatsource{#1}}
+\newcommand{\algsource}[1]{\floatsource{#1}}
+
+% Texto explicativo antes da imagem (fora do float)
+\newcommand{\prefig}[1]{\noindent\textbf{#1}\par\vspace{2pt}}
+
+% algorithm2e já carregado:
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+\DontPrintSemicolon
+\renewcommand{\algorithmcfname}{Algorithm}   % "Algorithm 1"
+\SetAlgoCaptionSeparator{:\,}                % "Algorithm 1: Título"
+
+% --- deixar compacto ---
+\setlength{\algomargin}{0.4em}               % margem esquerda (menor)
+\SetInd{0.4em}{0.6em}                        % indentação
+\SetAlgoNlRelativeSize{-2}                   % números de linha menores
+
+% fontes menores no título e corpo do algoritmo
+\SetAlFnt{\footnotesize}
+\SetAlCapFnt{\footnotesize}
+\SetAlCapNameFnt{\footnotesize}
+
+% macro para nomes de funções em mono (evita small caps quebrando o camelCase)
+\newcommand{\fn}[1]{\texttt{#1}}
+%\usepackage{longtable}
+
+% Captions no topo e fonte padronizada embaixo
+\usepackage{caption}
+
+\captionsetup[table]{position=top}
+\captionsetup[figure]{position=top}
+\captionsetup[algorithm]{position=top}
+
+\newcolumntype{L}{>{\centering\arraybackslash}m{6.2cm}}
+\newcolumntype{G}{>{\centering\arraybackslash}m{5.5cm}}
+\newcolumntype{A}{>{\centering\arraybackslash}m{2.4cm}}
+\newcolumntype{B}{>{\centering\arraybackslash}m{7.5cm}}
+%=======================================================================
+% Escolha do sistema para geração de referências bibliográficas.
+%=======================================================================
+\usepackage[alf]{abntex2cite}
+
+\autor{ALMEIDA}{VITOR STÜKER DE}
+\titulo{Closing the Comprehension Gap with Local-First Legal AI}
+\orientador[Prof.~Dr.]{Roehrs}{Alex}
+%\coorientador[Prof.~Dr.]{Lamport}{Leslie}
+\local{São Leopoldo}
+\ano{2026}
+\unidade{Unidade Acadêmica de Graduação}
+\curso{Bachelor's Degree in Computer Science}
+\natureza{%
+Article presented as a partial requirement to obtain the title of Bachelor in Computer Science, by the Computer Science Course of the University of Vale do Rio dos Sinos (UNISINOS)}
+
+%=======================================================================
+% Início do documento.
+%=======================================================================
+
+\begin{document}
+\raggedbottom
+\capa
+\folhaderosto
+
+% Diferentemente do normal, os comandos a seguir devem vir aqui mesmo,
+% e não antes do \begin{document} onde seria o lugar deles. 
+\tituloArtigo{Closing the Comprehension Gap with Local-First Legal AI}{}
+\autorArtigo{Vitor Stüker\footnote{Graduating in Computer Science at Unisinos. Email: vitoralmeida1@edu.unisinos.br}}
+\autorArtigo{Alex Roehrs\footnote{Professor of IT Courses at Unisinos. Email: alexr@unisinos.br}}
+
+%=======================================================================
+% Resumo em Português.
+%=======================================================================
+\begin{abstract}
+Legal documents are fundamental to civic participation, yet their inherent complexity creates significant barriers to comprehension, particularly for readers without legal training. This study addresses legal text inaccessibility by proposing LASCAS (Legal Accessibility and Simplification for Cognitive Aid System), a local-first prototype designed to simplify Brazilian legal Portuguese. The work is grounded in cognitive accessibility principles, the Plain Language movement, and Automatic Text Simplification (ATS), combining modern Natural Language Processing (NLP) techniques with semantic-integrity safeguards and accessibility-oriented presentation. Empirically, a formative pre-test with 3 legal-domain participants supported the adoption of the \texttt{medium} simplification level, and a broader questionnaire study with 30 participants produced consistently positive results: Perceived Ease of Use and Learnability both averaged 4.68/5, Perceived Usefulness 4.63/5, and the SUS-style composite 90.4/100, with 86.7\% of participants at 80 or above. A backend benchmark on consumer-grade hardware simplified a 4,392-word petition at the \texttt{medium} level in 90.8~s on average (about 21~s per 1,000 words) with near-saturated GPU utilization, evidencing the feasibility and hardware sensitivity of the local-first design. These results suggest that the prototype was perceived as effective in supporting the initial reading, comprehension, and triage of legal documents, and that LASCAS is a promising approach to advancing access to justice and digital inclusion.
+\palavraschave{Text Simplification. Cognitive Accessibility. Natural Language Processing. Legal Tech. Transformer Models.}
+\end{abstract}
+
+%=======================================================================
+% Introdução
+%=======================================================================
+\section{Introduction}
+
+Recent advances in large language models and Natural Language Processing (NLP) are creating increasingly sophisticated systems capable of processing complex legal language and supporting a growing range of legal tasks \cite{he2026legal}. This technological advancement holds particular promise for the legal domain, where documents ranging from judicial rulings to terms of service form the bedrock of civic life. However, a profound disconnect exists between the importance of these texts and their accessibility. The specialized language of law, or "Legalese," is characterized by an intricate vocabulary and convoluted sentence structures, creating a formidable barrier to comprehension for non-experts \cite{lai2024llmslaw}.
+
+The scale of this challenge is amplified by literacy statistics. According to the 2024 edition of the Functional Literacy Indicator (\textit{Indicador de Alfabetismo Funcional}, INAF), which assesses Brazilians aged 15 to 64, 29\% of this population, about 40.8 million people, are functionally illiterate, and only 10\% reach the proficient level \cite{inaf2024}. This gap is not merely academic; it has profound consequences. The inability to understand a contract or a court summary impedes an individual's ability to make informed decisions and exercise their rights, creating a dependency on legal professionals whose services can be prohibitively expensive. This exacerbates social inequities and limits access to justice, a problem that automated simplification systems are uniquely positioned to address \cite{agrawal2024do}.
+
+This problem of inaccessible legal language is a recognized societal challenge, prompting action from governmental bodies worldwide. Initiatives such as the Plain Writing Act of 2010 in the United States and resolutions from Brazil's National Council of Justice (CNJ) explicitly call for clearer communication \cite{alves2023automatic}. In Brazil, this movement gained legal force with Law No.~15,263 of November 14, 2025, which established the National Plain Language Policy for public administration bodies in all branches and levels of government; among its stated objectives are reducing the need for intermediaries in communication between the State and citizens and making public communication easier to understand for persons with disabilities \cite{brasil2025linguagem}. The development of automated systems for legal text simplification is, therefore, a direct response to a pressing need to bridge the communication gap between the judiciary and the populace. Such technology aligns with a global movement towards making legal information a public good, accessible to all regardless of educational background.
+
+The response to this challenge is increasingly found at the intersection of law and artificial intelligence, often termed "Legal Tech" \cite{porto2024iagenerativa}. Specifically, the field of NLP offers the tools to analyze and, more importantly, transform complex legal language at scale \cite{ariai2025nlp}. This technological intervention is not merely for convenience; it is a necessary step to operationalize the principles of cognitive accessibility and Plain Language for the vast and growing body of digital legal information. This work is situated within this exact context, proposing a computational approach to mitigate a deeply rooted communication barrier.
+
+\subsection{Problem Statement}
+
+The core problem addressed by this article is that legal texts and judicial communications in Brazilian Portuguese often require simplification so that legal and judicial information can be communicated in simple, direct, and comprehensible language to all citizens \cite{cnj2023pacto}. This complexity is not a mere stylistic inconvenience; it functions as a systemic barrier that can reinforce dependence on legal intermediaries and make access to legal information less autonomous. Recent scholarship on legislative drafting similarly argues that laws intended for broad public audiences must be written with understandability and accessibility in view, rather than primarily for specialist readers \cite{zariski2026plain}.
+
+From an accessibility perspective, text simplification is relevant because it can help people with cognitive impairments, language learners, and children understand complex content, but readability improvements alone are not sufficient if the simplified text fails to preserve grammatical adequacy and meaning \cite{alissa2023text}.
+
+Consequently, this inaccessibility undermines equal access to legal information and informed decision-making in digital contexts, where users are often expected to accept complex legal terms that are difficult for ordinary readers to understand \cite{benoliel2019unreadable}. This point is critical in the current technological landscape: as essential civic and commercial interactions move online, this linguistic barrier reflects a broader form of digital inequality, where access to digital platforms is not enough if users lack the skills, conditions, or support needed to make effective use of online information and services \cite{lythreatis2022digitaldivide}.
+
+\subsection{Research Question and Objectives}
+
+This study is guided by a central research question and a set of objectives designed to systematically explore the problem space and potential solutions.
+
+Research Question:
+\textit{How can modern NLP techniques, particularly those based on the Transformer architecture, be effectively applied to simplify Brazilian Portuguese legal texts to improve their cognitive accessibility in accordance with Plain Language principles?}
+
+Objectives:
+\begin{itemize}
+    \item To establish the conceptual and technical foundations of LASCAS (Legal Accessibility and Simplification for Cognitive Aid System) by relating cognitive accessibility, Plain Language, and Automatic Text Simplification (ATS) in the context of Brazilian Portuguese legal documents.
+    \item To develop the LASCAS prototype as a local-first architecture capable of simplifying real Brazilian legal documents (HTML and PDF) while preserving essential legal information.
+    \item To evaluate the prototype in terms of perceived understanding, usability, and its main strengths and limitations for improving access to legal information.
+\end{itemize}
+
+\subsection{Division of Work}
+
+This article is organized into seven sections. Section~2 presents the conceptual background and Section~3 reviews related work. Section~4 describes the architecture and implementation of LASCAS, Section~5 details the evaluation methodology, Section~6 discusses the results, and Section~7 concludes the work.
+
+\section{Background}
+
+This section outlines the foundations of LASCAS: the principles of cognitive accessibility and Plain Language that define its goal, and the ATS and Transformer technologies that enable it. The features that make legal text complex, which this project directly targets, are well documented \cite{garimella2022insights} and can be grouped as follows:
+
+\begin{itemize}
+ \item \textit{Lexical Complexity:} The pervasive use of domain-specific jargon, archaic terminology, and foreign phrases unfamiliar to non-experts.
+ \item \textit{Syntactic Complexity:} The prevalence of long, convoluted sentences containing multiple nested clauses and the passive voice, which can obscure meaning and increase processing difficulty.
+ \item \textit{High Information Density:} The condensation of numerous conditions and exceptions into single, dense paragraphs, demanding high levels of sustained attention and working memory.
+\end{itemize}
+
+\subsection{Cognitive Accessibility and Plain Language}
+
+Cognitive accessibility is an aspect of inclusive design focused on making information understandable for people with a wide range of cognitive and learning disabilities affecting memory, attention, and language comprehension \cite{w3c2023wcag}. The W3C's Web Content Accessibility Guidelines (WCAG) provide a framework for this, with Guideline 3.1, "Readable," being particularly pertinent. Its intent is to ensure users can correctly interpret text. Key success criteria under this guideline that directly motivate this work include \cite{w3c2023wcag}:
+
+\begin{itemize}
+    \item \textit{Unusual Words (3.1.3):} Recommends providing a mechanism for identifying definitions of words or phrases used in an unusual or restricted way, including jargon and idioms.
+    \item \textit{Abbreviations (3.1.4):} Calls for a mechanism to be available for identifying the expanded form or meaning of abbreviations.
+    \item \textit{Reading Level (3.1.5):} Considered a cornerstone of this work, this criterion recommends that when content requires an advanced reading ability, a supplementary version that does not require such ability should be provided.
+\end{itemize}
+
+Collectively, these criteria establish a direct mandate for text simplification as a necessary accommodation. While cognitive accessibility defines the goal, the Plain Language framework provides the methodology. Plain Language is communication so clear that the intended audience can easily find what they need, understand it, and use it effectively. Its principles offer concrete guidelines for rewriting complex text, which can be operationalized by an automated system \cite{iso2023plain}.
+
+Key principles include structural simplicity (short sentences, clear headings), lexical simplicity (common words instead of jargon), and directness (using the active voice). Manually applying this methodology to the vast corpus of legal documents is impractical \cite{alves2023automatic}. NLP is the enabling tool to automate it at scale, which positions this work at the intersection of Plain Language, NLP, and cognitive accessibility.
+
+\subsection{Automatic Text Simplification with Transformers}
+
+NLP is a subfield of AI concerned with enabling computers to understand and manipulate human language. Within NLP, ATS aims to transform a text into an easier-to-read version while preserving its original meaning \cite{alves2023automatic}, mainly through lexical and syntactic simplification. ATS is usually distinguished from summarization, which deliberately reduces information content. LASCAS combines the two: its \texttt{light} level performs sentence-level simplification, while \texttt{medium} and \texttt{strong} also condense the text toward roughly 55\% and 35\% of the original. Since the evaluation used the \texttt{medium} level, its results refer to this combination.
+
+Most state-of-the-art NLP models are based on the Transformer architecture \cite{alissa2023text}, whose key innovation is the multi-head self-attention mechanism, which allows the model to weigh the importance of each word relative to the others and to capture long-range dependencies. The original Transformer \cite{vaswani2017attention} follows an encoder-decoder structure suited to text-to-text tasks such as simplification: the encoder builds a context-aware representation of the input, and the decoder generates the output one token at a time.
+
+LASCAS, however, relies on Llama 3.1, which adopts the decoder-only variant of this architecture: a single stack of self-attention layers receives the instruction and the source text in the prompt and generates the output token by token, so simplification relies on instruction following rather than on training with parallel corpora. To run on consumer hardware, the 8-billion-parameter model is executed locally through Ollama in 4-bit quantized form (Q4\_K\_M), which stores weights with lower numerical precision, trading some output quality for a much smaller memory footprint. In the benchmark reported in Section~6, the quantized model fit within the 8~GB of VRAM of a laptop GPU.
+
+\section{Related Work}
+
+Related work was identified through a reproducible, funnel-style search across Google Scholar, ACL Anthology, Scopus, and DBLP. A broad search combining the terms ``legal text simplification,'' ``plain language,'' and ``law/legal,'' with a 2022--2026 filter, yielded \emph{$\sim 60$} items screened by title and abstract. Scope was then narrowed to ATS in the legal domain through combinations of ``text simplification,'' ``legal,'' and document types such as contracts, judgments, and statutes, alongside model terms such as Transformer, T5, and BART, reducing the pool to \emph{$\sim 25$}.
+
+Locale-sensitive searches also targeted Portuguese and Russian efforts. After removing duplicates and near-duplicates, \emph{$\sim 14$} studies remained. Inclusion then required either empirical ATS on legal data with metrics and/or human judgments, or peer-reviewed conceptual frameworks grounding plain-language and AI-assisted rephrasing for legal accessibility. After full-text screening, \emph{5} primary papers remained. The discussion below focuses on three empirical ATS studies in the legal domain \cite{garimella2022insights,alves2023automatic,athugodage2024transfer} and two works framing plain language and AI-assisted rephrasing as accessibility enablers in law \cite{toivonen2025jelt,zimina2025gai}. This set aligns with the identified research gap (semantic fidelity vs.\ accessibility under data scarcity). Figure~\ref{fig:research_funnel} summarizes this search and screening process.
+
+\begin{figure}[H]
+  \centering
+  \caption{Funnel-style search and screening process for related work.}
+  \includegraphics[width=.5\linewidth]{images/research.pdf}
+  \label{fig:research_funnel}
+  \figsource{prepared by the author (2026)}
+\end{figure}
+
+\citeonline{garimella2022insights} explored text simplification (TS) for legal contracts, highlighting the lack of parallel data as a key challenge. By evaluating unsupervised methods and a supervised BART model, they found significant \textit{disagreement among legal experts on simplicity} and \textit{weak correlations between automatic metrics and human judgments}. Their work underscored the trade-offs between fluency, meaning preservation, and simplification level.
+
+\citeonline{alves2023automatic} focus on Brazilian Portuguese \textit{judicial summaries}, tackling data scarcity by generating a synthetic parallel dataset with the unsupervised MUSS model. This data was then used to train supervised Transformer and NMT models. Their evaluation showed that most methods, especially the Transformer model and MUSS combined with translation, \textit{improved Flesch Reading Ease (FRE) scores} over the original summaries. These readability gains were complemented by a small survey with 16 participants.
+
+\citeonline{athugodage2024transfer} address data scarcity for Russian legal text by creating a parallel corpus that pairs official legal documents with plain-language explanations from the "Rossiyskaya Gazeta" newspaper. Using this dataset, they \textit{fine-tuned T5 and GPT models} which, despite poor ROUGE scores, achieved good results in SARI and readability metrics and often exceeded human-written commentaries in human evaluation.
+
+\citeonline{toivonen2025jelt} discuss plain-language communication and the role of AI within the emerging paradigm of “personalized law,” arguing that user-centered legal design and clear wording are prerequisites for accessibility rather than optional stylistic choices. They caution that AI should augment, not replace, human judgment, recommending standards and oversight to avoid opacity and loss of legal nuance. Although not an empirical simplification benchmark, the paper positions plain language and responsible AI as foundations for scalable legal accessibility.
+
+\citeonline{zimina2025gai} examine generative AI models as content rephrasing assistants for producing Plain Language and Easy-to-Read versions of legal texts in multilingual settings. Their case-based analysis shows that, although GAI can substantially simplify phrasing and structure, it still lacks functional legal awareness; consequently, effective workflows require human oversight, clear domain guidelines, and review tools to prevent semantic and pragmatic losses.
+
+Overall, the literature evolves from exposing the limits of existing legal TS methods to proposing data-creation strategies and, more recently, broader plain-language and human-in-the-loop perspectives. Across these studies, the shared challenge remains improving readability without compromising legal meaning, especially in data-scarce settings. This gap directly motivates the LASCAS proposal.
+
+\section{LASCAS Model}
+
+This article presents LASCAS, an ATS prototype developed with modern NLP techniques to transform complex legal Brazilian Portuguese into text aligned with Plain Language principles. The prototype was built to enhance the cognitive accessibility of legal documents by reducing their lexical and syntactic complexity and, consequently, the cognitive load required for comprehension. Its source code is publicly available at \url{https://github.com/StukerVitor/tcc_2}.
+
+\subsection{Architecture}
+
+LASCAS is a local-first pipeline that ingests HTML or PDF, normalizes legal artifacts, applies \emph{level-aware token safety}, and then simplifies the text using a hybrid core that combines a local LLM (via Ollama) with deterministic fallbacks. A thin browser extension invokes the local API and renders results side-by-side. The main components are:
+
+\begin{itemize}
+\item \textit{Local API (Node/Express):} receives HTML or PDF content through the \texttt{/simplify} and \texttt{/simplify-pdf} endpoints, orchestrates the end-to-end flow, and keeps lightweight cache/log traces for inspection and debugging.
+\item \textit{PDF Extraction:} reconstructs readable text from PDF files with \texttt{pdfjs-dist}.
+\item \textit{Preprocessing:} normalizes legal artifacts, splits the text into sentences or paragraph-aware chunks according to the level, and applies level-aware token safety.
+\item \textit{Simplification Core:} prompts the local model through Ollama, rejects unusable outputs, falls back to deterministic rules when needed, and adds glossary annotations for unusual terms.
+\item \textit{Merge and final normalization:} rejoins accepted outputs, restores protected content when applicable, and stabilizes headings and spacing.
+\item \textit{Integrity Layer (level-aware):} checks whether essential legal information was preserved, in a strict mode for \texttt{light} and a summary mode for \texttt{medium} and \texttt{strong}.
+\item \textit{Extension Shell (MV3):} lets the user select the simplification level, captures the page content or a PDF file, and displays the result in a sidebar next to the original document.
+\end{itemize}
+
+Figure~\ref{fig:arch} summarizes the architecture of LASCAS, read from the browser layer to the local runtime layer: user input enters through the extension, reaches the local API, and passes through extraction, normalization, simplification, integrity validation, and presentation. Rather than isolated, the language model is embedded in a controlled workflow that prepares the input before generation and validates the output before returning it to the user.
+\begin{figure}[H]
+  \centering
+  \caption{Component-level architecture}
+  \label{fig:arch}
+  \includegraphics[width=.82\textwidth, keepaspectratio]{images/arch.pdf}
+  \figsource{prepared by the author (2026)}
+\end{figure}
+
+\noindent The mapping between each logical component and its source files in the repository is given in Appendix~A (Table~\ref{tab:components}).
+
+\subsection{Algorithm}
+
+The LASCAS pipeline is implemented as a level-aware procedure. The \texttt{light} level focuses on sentence-level rewriting (high fidelity, near-original length), while \texttt{medium} and \texttt{strong} apply condensation with a guaranteed-shrink heuristic fallback. Algorithm~\ref{alg:lascas} presents the step-wise procedure used in the prototype.
+
+More specifically, the algorithm makes explicit that simplification is not treated as a single generation step. The pipeline first normalizes and pre-structures the input, then branches according to the selected level. In \texttt{light}, the system protects sensitive content, rewrites sentence by sentence, restores protected items, and finally applies a strict integrity check.
+
+In \texttt{medium} and \texttt{strong}, the system works on paragraph-aware chunks, selects the legal elements that must remain traceable, and makes up to two model attempts per chunk, keeping the shortest candidate that satisfies both structural and semantic constraints. The second attempt is made only when the first candidate is rejected or is still longer than 65\% of the chunk at \texttt{medium} (50\% at \texttt{strong}). If no attempt yields an acceptable output (for instance, because it is empty, too similar to the source, excessively verbose, or fails the preservation checks), the procedure falls back to deterministic condensation. This sequence clarifies how LASCAS combines generation, validation, and recovery within the same processing flow, so that accessibility gains are pursued without giving the model uncontrolled authority over legally relevant content.
+
+\noindent The main hyperparameters for each simplification level are summarized in Table~\ref{tab:level-params}. These parameters are not merely implementation details: they encode the expected behavior of each level by controlling whether the system should rewrite or condense, how much variation the model may introduce, how aggressively the output should shrink, and how long each local call may run before fallback behavior becomes preferable.
+
+\begin{table}[H]\centering
+\caption{Level parameters used by the prototype backend.}
+\label{tab:level-params}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Level} & \textbf{Mode} & \textbf{Temperature} & \textbf{Output target} & \textbf{Per-call budget (ms)} \\
+\midrule
+light  & rewrite (sentence) & 0.12 & $\approx$0--20\% & 24{,}000 \\
+medium & condense (chunk) & 0.16 & target ratio $\approx$0.55 & 52{,}000 \\
+strong & condense (chunk) & 0.18 & target ratio $\approx$0.35 & 65{,}000 \\
+\bottomrule
+\end{tabular}
+\tablesource{prepared by the author (2026)}
+\end{table}
+
+\noindent For condensation levels, paragraph-aware chunking uses 520--1050 words per chunk, and a one-time cold-start boost is applied to early calls to reduce timeout risk. The output target is given to the model as a word budget, while acceptance only rejects candidates that remain too long, so the output may end up shorter than the target.
+
+\begin{algorithm}[H]
+\caption{LASCAS--Level--Aware--Simplify}
+\label{alg:lascas}
+\begingroup
+\footnotesize
+\setstretch{0.96}
+
+\SetKwInOut{Input}{Input}
+\SetKwInOut{Output}{Output}
+
+\Input{$T_{\mathrm{in}}$ (raw text), $level \in \{\texttt{light},\texttt{medium},\texttt{strong}\}$}
+\Output{$T_{\mathrm{out}}$ simplified}
+
+$T_0 \leftarrow \fn{NormalizeArtifactsForLegal}(T_{\mathrm{in}})$\;
+$T_1 \leftarrow \fn{DeterministicPreStructure}(T_0)$\;
+\eIf{$level = \texttt{light}$}{
+  \tcp{High-fidelity sentence rewrite}
+  $(T_{\mathrm{prot}}, PH) \leftarrow \fn{ProtectPlaceholdersLight}(T_1)$\;
+  $P \leftarrow \fn{SplitParagraphs}(T_{\mathrm{prot}})$\;
+  $Out \leftarrow [\,]$\;
+  \ForEach{$p \in P$}{
+    \If(\tcp*[h]{Keep headings as-is}){$\fn{IsHeadingLike}(p)$}{\fn{Append}$(Out, p)$; \textbf{continue}\;}
+    $S \leftarrow \fn{SplitSentencesProtected}(p)$\;
+    $S' \leftarrow [\,]$\;
+    \ForEach{$s \in S$}{
+      $cand \leftarrow \fn{TryCallOllamaRewrite}(s, \fn{Budget}(level))$\;
+      \eIf{$\fn{AcceptRewrite}(s, cand)$}{
+        \fn{Append}$(S', cand)$\;
+      }{
+        \fn{Append}$(S', s)$\;
+      }
+    }
+    \fn{Append}$(Out, \fn{Join}(S',\," "))$\;
+  }
+  $T_{\mathrm{prot}} \leftarrow \fn{Join}(Out,\,"\textbackslash n\textbackslash n")$\;
+  $T_{\mathrm{out}} \leftarrow \fn{UnprotectPlaceholders}(T_{\mathrm{prot}}, PH)$\;
+  $T_{\mathrm{out}} \leftarrow \fn{PostStructureAndNormalize}(T_{\mathrm{out}})$\;
+  $T_{\mathrm{out}} \leftarrow \fn{AnnotateFirstOccurrences}(T_{\mathrm{out}})$\;
+  \If{\textbf{not} $\fn{ValidateIntegrity}(T_0, T_{\mathrm{out}},\texttt{strict})$}{
+    $T_{\mathrm{out}} \leftarrow \fn{DeterministicFallback}(T_0)$\;
+  }
+}{
+  \tcp{Condensation with guaranteed shrink}
+  $C \leftarrow \fn{SplitIntoChunksByWords}(T_1, 520, 1050)$\;
+  $Out \leftarrow [\,]$\;
+  \ForEach{$c \in C$}{
+    $req \leftarrow \fn{PickRequiredTokens}(c,\ level)$\;
+    $cand \leftarrow \fn{TryCallOllamaCondense}(c, req, \fn{Budget}(level))$\tcp*{best of up to 2 attempts}
+    \eIf{$\fn{AcceptCondense}(c, cand, req)$}{
+      \fn{Append}$(Out, cand)$\;
+    }{
+      $h \leftarrow \fn{HeuristicCondense}(c,\ level)$\;
+      \fn{Append}$(Out, h)$\;
+    }
+  }
+  $T_{\mathrm{out}} \leftarrow \fn{PostStructureAndNormalize}(\fn{Join}(Out,\,"\textbackslash n\textbackslash n"))$\;
+  $T_{\mathrm{out}} \leftarrow \fn{AnnotateFirstOccurrences}(T_{\mathrm{out}})$\;
+  \If{\textbf{not} $\fn{ValidateIntegrity}(T_0, T_{\mathrm{out}},\texttt{summary})$}{
+    $T_{\mathrm{out}} \leftarrow \fn{DeterministicFallback}(T_0)$\;
+  }
+}
+\Return{$T_{\mathrm{out}}$}\;
+
+\endgroup
+\end{algorithm}
+\algsourcebelow{prepared by the author (2026)}
+
+Figure~\ref{fig:control-logic} illustrates the control logic and decision states for a single simplification pass. It complements Algorithm~\ref{alg:lascas} by showing, in a more visual form, where the pipeline branches, how candidate outputs are accepted or rejected, and at which points fallback behavior is triggered. In this sense, the figure helps clarify that simplification in LASCAS is governed by successive decision checks rather than by a single opaque model response.
+\begin{figure}[H]
+  \centering
+  \caption{Decision states for a single pass.}
+  \label{fig:control-logic}
+  \includegraphics[width=.64\linewidth]{images/control-logic.pdf} 
+  \figsource{prepared by the author (2026)}
+\end{figure}
+
+Figure~\ref{fig:api-sequence} shows the end-to-end request path between the browser extension and the local LASCAS service. While the architectural diagram identifies the main components, this sequence view clarifies how they interact during actual use: the extension captures the user input, sends the request to the local backend, waits for extraction and simplification to finish, and then receives the final result for presentation in the browser. This makes the operational coordination of the prototype more explicit.
+\begin{figure}[H]
+  \centering
+    \caption{End-to-end request path}
+    \label{fig:api-sequence}
+  \makebox[\textwidth][c]{%
+    \includegraphics[width=1.10\textwidth,height=.32\textheight]{images/api.pdf}%
+  }
+  \figsource{prepared by the author (2026)}
+\end{figure}
+
+\subsection{Aspects of Implementation}
+
+This section details the main implementation choices of the prototype.
+
+\begin{itemize}
+\item \textit{PDF robustness:}
+The extractor uses the \texttt{pdfjs-dist} legacy build and re-assembles lines by $y$-banding with adaptive gap thresholds (percentiles of glyph gaps per line). It also repairs broken numbers, collapses excessive newlines, and glues page breaks with sentence-aware heuristics to avoid accidental paragraph splits.
+
+\item \textit{Legal-aware normalization and token safety (level-aware):}
+The normalizer repairs Brazilian number and currency formats and OCR-style artifacts typical of notary deeds (Table~\ref{tab:normalization-examples}). Token safety is level-aware: (i) in \texttt{light}, placeholders protect critical content (numbers, dates, values, legal citations, negations, and fragile legal terms) before LLM calls and are restored afterwards; (ii) in \texttt{medium}/\texttt{strong}, the system seeks to preserve and validates essential items (dates, values, percentages, legal citations, and registry/process identifiers), while qualification/PII fields may be omitted.
+
+\item \textit{Sentence splitting and chunking:}
+Abbreviations (e.g., \emph{Art., Dr., Av.}) are shielded to avoid spurious splits. In \texttt{light}, rewriting is performed sentence-by-sentence within paragraphs. In \texttt{medium}/\texttt{strong}, the input is split into paragraph-aware chunks (520--1050 words) to respect token budgets and latency caps.
+
+\item \textit{LLM adapter and latency control:}
+The adapter targets a local Ollama endpoint and prompts \texttt{llama3.1:8b-instruct} (set through \texttt{LASCAS\_MODEL} in the prototype setup). It computes a dynamic \texttt{num\_predict} from input size and the per-level target, enforces per-call budgets, and uses soft timeouts (via abort signals). Outputs that are empty, contain meta-preambles, or fail acceptance checks (e.g., insufficient change for rewrite; insufficient shrink for condensation) are rejected.
+
+\item \textit{Deterministic structuring:}
+The fallback enforces visible structure: short lines, stable headings, bulletization of semicolon-delimited lists, and targeted legal phrasing fixes. This guarantees readability even without the LLM and reduces the risk of returning nearly unchanged legalese.
+
+\item \textit{Glossary and cognitive accessibility:}
+On the first occurrence, selected legal terms are annotated inline with simple definitions (Portuguese), which supports WCAG 3.1 intent for unusual words and abbreviations.
+
+\item \textit{Semantic integrity gate (level-aware):}
+Before returning, the output is checked against the source: strictly in \texttt{light}, where nearly all numeric and legal references must be kept, and in summary mode in \texttt{medium}/\texttt{strong}, where only the essential items listed above are required. If the check fails, the deterministic fallback output is returned instead.
+
+\item \textit{Extension integration:}
+The MV3 manifest injects a content script, which extracts the page DOM or the current selection, and exposes \texttt{sidebar.css} as a web-accessible resource for the side-by-side view. The popup sends the selected \texttt{level} via tab messaging. PDFs are forwarded either as Base64 through \texttt{/simplify} or as raw bytes through \texttt{/simplify-pdf}, depending on browser constraints and file size.
+\end{itemize}
+
+Figure~\ref{fig:ui} shows the prototype in use, and Table~\ref{tab:example} pairs a sentence of the same petition with its counterpart in the output at the \texttt{medium} level: the nominal construction gives way to a direct verb, \textit{Registro de Qualificação de Especialidade} becomes \textit{título de especialidade}, and the legal regime of the profession becomes simply \textit{lei}. Elsewhere, the output drops the qualification of the parties, gathers the cited laws in a final ``Referências legais'' line, and explains legal terms on first occurrence, as in \textit{Citação (chamamento do réu para se defender)}.
+\begin{figure}[H]
+  \centering
+  \caption{LASCAS in use: level selection and simplified text next to the original PDF.}
+  \label{fig:ui}
+  \includegraphics[width=\textwidth]{images/interface.pdf}
+  \figsource{prepared by the author (2026)}
+\end{figure}
+
+\begin{table}[H]\centering
+\caption{Excerpt of the petition and the corresponding LASCAS output (\texttt{medium} level).}
+\label{tab:example}
+\footnotesize
+\setstretch{1.0}
+\setlength{\tabcolsep}{6pt}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Original} & \textbf{LASCAS output} \\
+\midrule
+A exigência imposta pela empresa aérea, ao condicionar a validade do FREMEC à assinatura por médico com Registro de Qualificação de Especialidade específica, cria restrição não prevista no regime jurídico da profissão médica. &
+A empresa aérea Via Brasil Linhas Aéreas S.A. exige que os médicos tenham título de especialidade específica para assinar o FREMEC, o que não é previsto em lei. \\
+\bottomrule
+\end{tabularx}
+\tablesource{prepared by the author (2026)}
+\end{table}
+
+\noindent Selected normalization rules (examples). Table~\ref{tab:normalization-examples} lists representative normalization issues and where in the pipeline they are handled.
+
+\begin{table}[H]\centering
+\caption{Examples of normalization and where they are applied.}
+\label{tab:normalization-examples}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Issue} & \textbf{Example (in $\rightarrow$ out)} & \textbf{Origin} \\
+\midrule
+Dash break in numbers & \texttt{133- \textbackslash n 569} $\rightarrow$ \texttt{133-569} & PDF extraction fix \\
+PT-BR decimals spacing & \texttt{133.569, 32} $\rightarrow$ \texttt{133.569,32} & Preprocess regex \\
+Remove digit gaps & \texttt{1 2 3} $\rightarrow$ \texttt{123} & Preprocess regex \\
+Currency spacing & \texttt{R\$133} $\rightarrow$ \texttt{R\$ 133} & Preprocess regex \\
+Abbreviation shielding & \texttt{Art. 5º} (no split) & Splitter guard \\
+\bottomrule
+\end{tabular}
+\tablesource{prepared by the author (2026)}
+\end{table}
+
+\noindent Server hardening and warm-up.
+The API enables CORS, increases keep-alive timeouts, and performs a best-effort warm-up (\texttt{/api/tags} + 1-token chat) to reduce the first-call penalty while not blocking availability if the daemon is cold.
+
+\subsection{Limitations}
+
+The current version of LASCAS should be understood as a local-first proof of concept, and several limitations follow directly from this design. Because extraction, preprocessing, validation, and simplification run on the user’s own machine, performance depends on available hardware and becomes more sensitive with long legal documents and large PDFs. This constraint also influenced the adoption of a lightweight local model configuration, which keeps the system within reach of consumer hardware with a dedicated GPU but limits performance and domain specialization. The performance benchmark reported in Section~6 quantifies this constraint on a high-performance laptop with a consumer GPU.
+
+In addition, the underlying language model was not specifically fine-tuned on a broad corpus of Brazilian legal simplification pairs, which means that part of the system’s quality still relies on prompt design, preprocessing, integrity checks, and fallback rules. As a result, the output may occasionally miss stylistic or terminological nuances typical of highly formal legal and notarial documents.
+
+There are also practical limitations in document handling and accessibility support. The glossary layer improves comprehension, but it is finite and manually curated, so rare expressions, regional usages, or institution-specific abbreviations may still remain difficult. PDF processing is also more reliable when files contain an actual text layer; scanned or image-only PDFs are not handled with the same robustness because the prototype does not yet include a dedicated OCR stage. Finally, recurring headers, footers, and institutional metadata remain a challenging case, since repeated elements may be either noise or legally relevant content. Even with targeted heuristics, future versions should improve parsing, OCR support, glossary coverage, and domain adaptation to reduce reliance on case-specific adjustments.
+
+\section{Evaluation Methodology}
+
+We designed a custom ten-item questionnaire inspired by the System Usability Scale (SUS) \cite{brooke1996sus} and the Technology Acceptance Model (TAM) \cite{davis1989tam}, combining perceived usability with acceptance constructs. This combination is supported by applied SUS research and by systematic evidence of TAM's suitability for technology-adoption studies \cite{hyzy2022susbench, rosli2022tamreview}, and follows studies that integrate SUS and TAM when evaluating interactive systems \cite{chuenyindee2022integrating}.
+
+\subsection{Participants and Procedure}
+Participants were recruited by convenience among family members, friends, and acquaintances of the author, including professionals from the legal field, and the sessions took place in late March and early April 2026. Each session was held in person on the author's laptop, the same machine described in Table~\ref{tab:bench-hw}: the participant opened the evaluation document, a public petition anonymized for the study and identical for all participants, ran the simplification at the \texttt{medium} level, and compared the original with the result shown in the sidebar. The participant then answered a questionnaire in Microsoft Forms, written in Portuguese, with the Likert items and one open-ended question. Participation was voluntary, and responses were collected anonymously, without names, e-mail addresses, or other identifying data. Because the local service had already been installed and configured, the ease-of-use items refer to operating the extension rather than to setting up the backend, and the performance items reflect this specific hardware.
+
+\subsection{Instrument: Likert Scale and Items}
+All items used a 5‐point Likert scale (1 = \textit{Strongly disagree}, 2 = \textit{Disagree}, 3 = \textit{Neither}, 4 = \textit{Agree}, 5 = \textit{Strongly agree}). The ten statements, which mix positively and negatively worded items, were presented in random order through the shuffle option of Microsoft Forms, a practice that helps reduce response artifacts in lightweight usability evaluations \cite{robertson2020discount}. Table~\ref{tab:survey-items} lists English translations of the items in a fixed order, used only for readability. The statements cover five constructs: Perceived Ease of Use (PEOU), Learnability, Perceived Usefulness (PU), Performance (latency/throughput), and Behavioral Intention (BI). Each construct is measured by one positively and one negatively worded item.
+
+The questionnaire ended with the following open-ended prompt (translated):
+\begin{quote}
+In your own words, what worked well and what should be improved in the extension?
+\end{quote}
+
+\begin{table}[H]\centering
+\caption{Survey items, translated from Portuguese (negative items are reverse‐scored).}
+\label{tab:survey-items}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.12}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}l X l l@{}}
+\toprule
+\textbf{ID} & \textbf{Statement (English)} & \textbf{Dimension} & \textbf{Polarity} \\
+\midrule
+Q1  & The extension is easy to use. & PEOU (SUS/TAM) & Positive \\
+Q2  & I learned to use the extension quickly. & Learnability (SUS) & Positive \\
+Q3  & The system’s responses are fast enough for my tasks. & Performance (pragmatic) & Positive \\
+Q4  & I intend to keep using this extension in my work or studies. & BI (TAM) & Positive \\
+Q5  & The extension helps me understand legal text more effectively. & PU (TAM) & Positive \\
+Q6  & I needed to learn a lot before I could get going with this extension. & Learnability (SUS) & Negative (reverse) \\
+Q7  & The system is often too slow for me to be productive. & Performance (pragmatic) & Negative (reverse) \\
+Q8  & The extension is not easy to use. & PEOU (SUS/TAM) & Negative (reverse) \\
+Q9  & The extension does not improve my understanding of legal text. & PU (TAM) & Negative (reverse) \\
+Q10 & I do not intend to use this extension in the future. & BI (TAM) & Negative (reverse) \\
+\bottomrule
+\end{tabularx}
+\tablesource{prepared by the author (2026)}
+\end{table}
+
+\subsection{Scoring and Data Handling}
+
+This subsection outlines the scoring pipeline used to derive construct-level indices and a SUS-style composite. We first define the coding scheme, then compute construct means, perform an inconsistency check, assess reliability, and specify reporting outputs.
+
+\begin{itemize}
+\item \textit{Coding:} Responses are mapped to integers 1–5 in ascending agreement. Negative items (Q6, Q7, Q8, Q9, Q10) are reverse‐coded via $\mathrm{rev}(x)=6-x$. This scoring is consistent with contemporary SUS/TAM practice in mixed instruments \cite{robertson2020discount}.
+
+\item \textit{Construct scores:} We compute per‐construct means using the positive/negative pairs in their randomized positions:
+\[
+\begin{aligned}
+\mathrm{PEOU}&=\mathrm{mean}(Q1,\,\mathrm{rev}(Q8)),\quad
+\mathrm{Learnability}=\mathrm{mean}(Q2,\,\mathrm{rev}(Q6)),\\
+\mathrm{PU}&=\mathrm{mean}(Q5,\,\mathrm{rev}(Q9)),\quad
+\mathrm{Performance}=\mathrm{mean}(Q3,\,\mathrm{rev}(Q7)),\\
+\mathrm{BI}&=\mathrm{mean}(Q4,\,\mathrm{rev}(Q10)).
+\end{aligned}
+\]
+For the SUS-style composite, after reverse-coding the negative items, the ten item scores (each in the 1--5 range) are summed, producing a raw score from 10 to 50. This sum is then linearly rescaled to a 0--100 scale using the following equation:
+\[
+\mathrm{Composite} = \left(\sum_{i=1}^{10} item_i - 10\right) \times 2.5.
+\]
+This follows the rescaling logic of the original SUS \cite{brooke1996sus}, applied to the items of this instrument. Because these items differ from the standard SUS, the composite is not comparable to published SUS benchmarks.
+
+\item \textit{Inconsistency check:} For each pair, we compute $\Delta=\lvert Q^{+}-\mathrm{rev}(Q^{-})\rvert$; large discrepancies (e.g., $\Delta>2$) are flagged as potential inattentive responses. Flags are reported as a data‐quality indicator and not used for automatic exclusion.
+
+\item \textit{Reliability and analysis:} We report descriptive statistics (mean, standard deviation (SD), median, and favorable response rates) for each construct and for the SUS-style composite. Internal consistency is reported for the full scale using Cronbach’s $\alpha$, while pairwise construct reliabilities are interpreted cautiously because each construct is represented by only two items. The TAM lens supports interpretation of PEOU and PU as relevant dimensions for understanding Behavioral Intention in the analysis narrative.
+
+\item \textit{Outputs and Reporting:} We present: (i) construct means for PEOU, Learnability, PU, Performance, and BI; (ii) the SUS‐style composite (0–100); (iii) the proportion of responses flagged by the inconsistency check; and (iv) key themes from the open‐ended answers. This structure aligns with recent integrated SUS+TAM evaluations in educational and productivity technologies.
+\end{itemize}
+
+\subsection{Performance Benchmark}
+
+To complement the attitudinal instrument, in which performance appears only as a perceived construct (Q3/Q7), we also measured the objective runtime behavior of the backend. The benchmark reproduces the main condition of the broader study: the public petition assessed by all participants (4,392 extracted words) is simplified at the \texttt{medium} level through the same \texttt{/simplify-pdf} endpoint used by the extension. After a priming request that keeps model loading out of the measurements, 10 identical warm repetitions are executed by a self-contained script kept in the project repository, with no changes to the pipeline: processing telemetry comes from the instrumentation the API already returns, end-to-end latency is measured on the client side, and GPU memory, GPU utilization, and RAM are sampled at 1-second intervals. The reported metrics are end-to-end latency, PDF extraction and transport time, normalized input throughput (words per second; seconds per 1,000 words), and the resource-usage envelope. Table~\ref{tab:bench-hw} summarizes the hardware and software configuration: a high-performance laptop with a consumer GPU.
+
+\begin{table}[H]\centering
+\caption{Hardware and software configuration used in the performance benchmark.}
+\label{tab:bench-hw}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.0}
+\begin{tabularx}{\textwidth}{@{}l >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Component} & \textbf{Configuration} \\
+\midrule
+Machine & Alienware m16 R1 (laptop) \\
+CPU & Intel Core i9-13900HX (32 logical processors) \\
+RAM & 31 GB available to the host OS; 15.5 GB provisioned to WSL2 \\
+GPU & NVIDIA GeForce RTX 4070 Laptop GPU, 8 GB VRAM (driver 616.92) \\
+OS / environment & Windows 11 Pro with WSL2 (Ubuntu 26.04 LTS) \\
+Backend runtime & Node.js v24.19.0; Ollama 0.32.7 \\
+Language model & Llama 3.1 8B instruct (Q4\_K\_M, 8,192-token context, system prompt embedded via Ollama Modelfile) \\
+\bottomrule
+\end{tabularx}
+\tablesource{prepared by the author (2026)}
+\end{table}
+
+\section{Results and Discussion}
+
+This section presents the empirical results obtained with LASCAS and discusses them in light of the goals established in Sections~4 and~5. Rather than treating evaluation as a purely benchmark-driven exercise, this work adopted an applied and iterative validation strategy centered on real legal documents, human perception, and cognitive accessibility. This framing is coherent with the practical character of the prototype and with the data-scarcity problem already identified in related work on legal simplification \cite{garimella2022insights, alves2023automatic, athugodage2024transfer}.
+
+\subsection{Evaluation Scope and Rationale}
+
+The empirical stage was organized in two complementary moments with human participants, complemented by the automated backend performance benchmark defined in Section~5. First, a formative pre-test was conducted with three participants from the legal domain using three public legal files that were anonymized for the study. This smaller round was exploratory: it checked whether the prototype was mature enough for a broader trial, which failure modes still required attention, and which evaluation format was feasible. A key outcome of this pre-test was the decision to adopt the \texttt{medium} simplification level in the larger study, since it offered the best balance between readability gain, semantic preservation, and task duration.
+
+Second, a broader attitudinal evaluation was conducted with the questionnaire described in Section~5. In this stage, all participants assessed the same petition, simplified at the \texttt{medium} level during the session. This decision intentionally reduced reading burden and kept the session short enough to avoid fatigue, while still allowing participants to compare the original and simplified versions with adequate attention. The formative pre-test with three legal-domain participants was therefore used as a calibration step, not as a statistically conclusive comparison between all levels. Running \texttt{light}, \texttt{medium}, and \texttt{strong} in the broader study would have substantially increased reading time and introduced fatigue effects, since each participant would need to inspect multiple versions of the same legal content. For this reason, the broader evaluation focused on the level that had shown the best practical trade-off in the pre-test, while a controlled comparison between simplification levels remains a direction for future evaluation.
+
+
+The number of publicly shareable files was intentionally limited. During development, more than ten real legal files were used to stress the pipeline, but only three public documents could be kept available for download and inspection. Since there is still no accepted benchmark of full legal documents paired with validated simplified versions, the evaluation privileged ecological validity: authentic documents, anonymization, and iterative feedback from people familiar with legal practice.
+
+This also helps explain why development was not pushed indefinitely beyond the current point. Going much further with targeted refinements would start steering the solution toward the specific test files, undermining the generic orientation of the system. Since a central design decision of LASCAS is to remain \textit{generalist}, the prototype was considered sufficiently mature for this stage once it reached stable behavior across heterogeneous documents and once the pre-test indicated that the medium level was already producing a satisfactory balance between condensation and preservation. Table~\ref{tab:eval-scope} summarizes the evaluation scope.
+
+\begin{table}[H]
+\centering
+\caption{Evaluation stages and rationale adopted in this study.}
+\label{tab:eval-scope}
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.4cm} >{\raggedright\arraybackslash}p{2.8cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{1.8cm} >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Stage} & \textbf{Primary goal} & \textbf{Material} & \textbf{Participants} & \textbf{Main outcome} \\
+\midrule
+Formative pre-test & Calibrate the prototype before broader exposure & 3 public legal documents, anonymized for the study; additional real files used internally during development. & 3 (legal domain) & Selection of the \texttt{medium} level as the best overall trade-off; refinement of prompts, glossary behavior, and document-handling heuristics. \\
+\addlinespace[1pt]
+Broader questionnaire study & Measure perceived usability, usefulness, and adoption potential & The same anonymized petition for all participants, simplified at the medium level during the session. & 30 & Quantitative SUS/TAM-style evidence plus open-ended feedback on strengths and improvement opportunities. \\
+\addlinespace[1pt]
+Backend performance benchmark & Characterize objective runtime behavior on consumer hardware & The petition used in the broader study, at the \texttt{medium} level, 10 warm repetitions. & n/a (automated) & Latency, throughput, and resource envelope; model inference confirmed as the dominant computational cost. \\
+\bottomrule
+\end{tabularx}
+\tablesource{prepared by the author (2026)}
+\end{table}
+
+
+\subsection{Participant Profile}
+
+The broader questionnaire stage included 30 respondents. The sample was intentionally heterogeneous in relation to legal background, with perfect balance between participants from the legal area (\textit{n} = 15) and participants from outside the legal area (\textit{n} = 15). In terms of formal education, 22 participants reported completed higher education and 8 reported completed high school.
+
+
+This composition is relevant because it brings together two audiences that matter for the problem addressed here. Participants with legal-domain familiarity help indicate whether the simplified output remains dependable as an initial reading aid, while non-specialists help show whether the system actually lowers the entry barrier created by legal language. For a tool whose purpose is to improve accessibility, positive feedback distributed across both groups is more meaningful than approval restricted to expert users alone. Educational background plays a similar role: because part of the sample did not complete higher education, the evaluation includes readers closer to the literacy profiles that motivate cognitive accessibility work in the first place. This does not turn the sample into a clinical population, but it brings the test conditions closer to the audiences the prototype intends to serve. Figure~\ref{fig:participant-profile} summarizes this profile.
+
+\begin{figure}[H]
+  \centering
+  \caption{Participant profile in the broader questionnaire stage.}
+  \label{fig:participant-profile}
+  \includegraphics[width=.86\linewidth]{images/participant_profile.pdf}
+  \figsource{prepared by the author (2026)}
+\end{figure}
+
+
+\subsection{Quantitative Results}
+
+The quantitative results show a consistently favorable pattern across different dimensions of use. Taken together, the results indicate that the prototype was perceived as easy to use, useful for initial reading of legal texts, and plausible as support for comprehension and triage tasks.
+
+\subsubsection{Construct-level outcomes}
+
+Table~\ref{tab:construct-results} presents the descriptive statistics by construct. On the 1--5 scale, the highest means were observed for Perceived Ease of Use and Learnability (both 4.68), followed by Performance (4.65) and Perceived Usefulness (4.63). Behavioral Intention was the lowest-scoring construct (4.43), but it still remained clearly favorable, with 86.7\% of respondents at or above 4.0.
+
+\begin{table}[H]\centering
+\caption{Construct-level scores in the broader questionnaire stage.}
+\label{tab:construct-results}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{Construct} & \textbf{Mean} & \textbf{SD} & \textbf{Median} & \textbf{Favorable (\% $\geq$ 4)} & \textbf{Pair $\alpha$} \\
+\midrule
+PEOU & 4.68 & 0.40 & 5.0 & 96.7 & 0.46 \\
+Learnability & 4.68 & 0.38 & 5.0 & 100.0 & 0.52 \\
+Performance & 4.65 & 0.53 & 5.0 & 96.7 & 0.78 \\
+PU & 4.63 & 0.54 & 5.0 & 93.3 & 0.30 \\
+BI & 4.43 & 0.65 & 4.5 & 86.7 & 0.53 \\
+\bottomrule
+\end{tabular}
+\tablesource{prepared by the author (2026)}
+\end{table}
+
+These construct means concentrate in the upper range of the scale, suggesting that the prototype was not merely considered promising in the abstract. It was already perceived as understandable, learnable, and useful in a concrete task involving legal documents.
+
+The overall SUS-style composite reinforces this interpretation. After linearly rescaling the ten reverse-aligned items, the instrument reached a mean of 90.4/100 ($SD = 9.8$), with median 92.5 and interquartile range from 87.5 to 97.5. Moreover, 86.7\% of participants scored the experience at 80 or above, and 63.3\% scored it at 90 or above. Figure~\ref{fig:sus-distribution} shows the distribution.
+
+\begin{figure}[H]
+  \centering
+  \caption{Distribution of the SUS-style composite (0--100).}
+  \label{fig:sus-distribution}
+  \includegraphics[width=.76\linewidth]{images/sus_distribution.pdf}
+  \figsource{prepared by the author (2026)}
+\end{figure}
+
+The quality checks described in Section~5 also support a cautious but positive reading of the dataset. Only 2 respondents (6.7\%) triggered at least one inconsistency flag above the adopted threshold. Since these flags were not used for exclusion, the analysis remains conservative. At the same time, the low flagged proportion indicates that the questionnaire was completed with reasonable coherence, which increases confidence in the descriptive interpretation of the results. Full-scale internal consistency was also good ($\alpha = 0.832$). The reliabilities of the five two-item pairs, reported in Table~\ref{tab:construct-results}, ranged from 0.30 (PU) to 0.78 (Performance); they should be interpreted carefully because each construct was measured with only two items and the response distribution shows a visible ceiling effect.
+
+The ceiling effect should also be considered when interpreting the strength of the results. Because most construct means were concentrated between 4.43 and 4.68 on a 1--5 scale, the instrument had limited room to discriminate between moderately positive and extremely positive perceptions. Therefore, the findings should be read primarily as evidence of strong perceived acceptance and usability in this evaluation context, not as a fine-grained ranking of constructs or subgroups. Future evaluations should include more discriminative measures, such as objective comprehension tasks, task-completion time, error analysis, and larger samples, to better separate usability, understanding, and adoption effects.
+
+\subsubsection{Item-level interpretation}
+
+Table~\ref{tab:item-results} presents the aligned item-level statistics. All ten items obtained means above 4.3 after reverse coding, and the lowest favorable rate was 90.0\%, observed for the two Behavioral Intention items. This helps show that the positive evaluation was not concentrated in a single isolated aspect of the experience.
+
+\begin{table}[H]\centering
+\caption{Item-level scores after reverse coding of negative items.}
+\label{tab:item-results}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Item} & \textbf{Mean} & \textbf{SD} & \textbf{Favorable (\% $\geq$ 4)} \\
+\midrule
+Q1 & 4.77 & 0.43 & 100.0 \\
+Q2 & 4.77 & 0.43 & 100.0 \\
+Q3 & 4.83 & 0.46 & 96.7 \\
+Q4 & 4.50 & 0.68 & 90.0 \\
+Q5 & 4.77 & 0.50 & 96.7 \\
+Q6 & 4.60 & 0.50 & 100.0 \\
+Q7 & 4.47 & 0.68 & 96.7 \\
+Q8 & 4.60 & 0.56 & 96.7 \\
+Q9 & 4.50 & 0.86 & 93.3 \\
+Q10 & 4.37 & 0.89 & 90.0 \\
+\bottomrule
+\end{tabular}
+\tablesource{prepared by the author (2026)}
+\end{table}
+
+One detail is worth noting here. The slightly more conservative scores were associated with future-oriented adoption rather than with immediate usability or perceived usefulness. This is a realistic pattern for an early-stage legal technology tool: users can recognize practical value before they are fully ready to imagine routine dependence on it. In that sense, the lower Behavioral Intention scores do not weaken the proposal; they help place it at a plausible stage of maturity.
+
+\subsubsection{Subgroup stability}
+
+The favorable pattern was not restricted to a single user profile. Table~\ref{tab:subgroups} summarizes the SUS-style composite and construct means by subgroup. Legal-area participants reported slightly higher scores overall, but the differences were small enough to suggest stability rather than segmentation. For education level, the gap was larger (85.6 vs.\ 92.2 on the composite), but even participants with completed high school evaluated the system positively across all measured dimensions.
+
+\begin{table}[H]\centering
+\caption{Subgroup results for the SUS-style composite and construct means.}
+\label{tab:subgroups}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.12}
+\begin{tabular}{@{}lccccccc@{}}
+\toprule
+\textbf{Group} & \textbf{n} & \textbf{SUS-style} & \textbf{PEOU} & \textbf{Learnability} & \textbf{Performance} & \textbf{PU} & \textbf{BI} \\
+\midrule
+Legal area & 15 & 91.5 & 4.70 & 4.73 & 4.63 & 4.63 & 4.60 \\
+Non-legal area & 15 & 89.3 & 4.67 & 4.63 & 4.67 & 4.63 & 4.27 \\
+Higher education & 22 & 92.2 & 4.75 & 4.73 & 4.75 & 4.68 & 4.52 \\
+High school & 8 & 85.6 & 4.50 & 4.56 & 4.38 & 4.50 & 4.19 \\
+\bottomrule
+\end{tabular}
+\tablesource{prepared by the author (2026)}
+\end{table}
+
+This subgroup stability is important for the broader argument of this article. A legal simplification system that performs well only for readers who are already comfortable with legal discourse would have limited accessibility value. Here, the descriptive evidence points in the opposite direction: the perceived benefit appears to extend beyond the specialist audience.
+
+\subsection{Qualitative Feedback}
+
+The open-ended responses add important texture to the numerical picture. A light thematic reading of the 30 comments identified four recurring themes, summarized in Table~\ref{tab:theme-frequency} as coded mentions. The coding was descriptive rather than exhaustive, focusing on the perceptions that most directly help interpret the quantitative pattern; because a single response could be coded into more than one theme, totals should be interpreted as theme occurrences rather than unique participants.
+
+\begin{table}[H]\centering
+\caption{Frequency of coded mentions in open-ended feedback.}
+\label{tab:theme-frequency}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}X c@{}}
+\toprule
+\textbf{Theme} & \textbf{Coded mentions} \\
+\midrule
+Clearer understanding and easier reading & 17 \\
+Productivity, triage, and quick overview & 15 \\
+Practicality, interface, and ease of use & 12 \\
+Requests for more detail, formatting, or glossary support & 9 \\
+\bottomrule
+\end{tabularx}
+\tablesource{prepared by the author (2026)}
+\end{table}
+
+The qualitative feedback aligns closely with the quantitative results. Many participants described the extension in terms of orientation, overview, and first understanding, which suggests that LASCAS is not being interpreted as a replacement for full legal reading, but as a support layer that lowers the initial barrier to entry into the document. The co-occurrence of comprehension and productivity themes reinforces this reading: for many respondents, understanding the document better and dealing with it faster were not competing benefits, but two effects of the same reduction in cognitive load. Comments about practicality and ease of use, in turn, echo the high PEOU scores in spontaneous form.
+
+One of the most illustrative comments reported a perceived reduction in reading time from approximately eight minutes on the original file to four minutes with the support of the extension. Although anecdotal rather than experimental timing evidence, it captures an advantage that appears repeatedly across the responses: the tool seems useful not only for understanding more, but for understanding earlier. Other comments connect the prototype to triage, quick consultation, high-volume reading routines, and communication with clients in more accessible language.
+
+The nature of the suggested improvements is equally relevant. Participants mostly asked for refinement rather than redesign: more detail in specific passages, better output formatting, richer glossary support, and, in some cases, faster processing. The suggestions concentrate on presentation, coverage, and speed rather than on the dependability of the simplified content, an encouraging signal for a tool operating in a domain where trust is decisive.
+
+\subsection{Backend Performance}
+
+Table~\ref{tab:bench-results} consolidates the benchmark defined in Section~5. At the \texttt{medium} level, the backend processed 49.5 input words per second, or about 21~s per 1,000 words. Latency varied across runs (coefficient of variation of 15.8\%) with the power drawn by the GPU: the four fastest runs, near 93~W, averaged 75.6~s, and the four slowest, near 76~W, took 105.3--107.5~s.
+
+\begin{table}[H]\centering
+\caption{Backend performance at the \texttt{medium} level (10 warm runs, 4,392-word petition).}
+\label{tab:bench-results}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.0}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Metric} & \textbf{Result} \\
+\midrule
+End-to-end latency (mean $\pm$ SD) & 90.8 $\pm$ 14.3 s \\
+End-to-end latency (median; min--max) & 90.9 s; 75.5--107.5 s \\
+PDF extraction and transport (mean) & 47 ms ($<$0.1\% of total) \\
+Input throughput & 49.5 words/s ($\approx$20.7 s per 1,000 words) \\
+Model calls per run & 6 across 5 chunks (all accepted; no timeouts or fallback) \\
+Output length & 1,144--1,199 words (ratio 0.26--0.27; target 0.55) \\
+Mean GPU utilization & 94.7\% (per-run means 92.6--96.3\%; peaks 96--100\%) \\
+Peak GPU memory (global) & 6,543 MiB of 8,188 MiB \\
+GPU power (per-run means) & 75--93 W \\
+Peak RAM (WSL2) & $\approx$4.6 GB \\
+\bottomrule
+\end{tabular}
+\tablesource{prepared by the author (2026)}
+\end{table}
+
+That total time is unevenly distributed across the pipeline. PDF extraction and transport took 47~ms on average, below 0.1\% of the total, so virtually the entire cost lies in the local model calls: 6 calls over 5 chunks per run, at roughly 15~s per call. As in Algorithm~\ref{alg:lascas}, a chunk gets a second attempt only when the first candidate is rejected or does not shrink it enough (ratio above 0.65 at \texttt{medium}), which happened to one chunk per run. All chunks were accepted from the model and the final integrity validation passed in every run, so neither fallback was used. The output had 1,144 words (1,199 in the first run), a ratio of 0.26 against the 0.55 target of Table~\ref{tab:level-params}, since acceptance only limits outputs that are too long and the shortest valid candidate is kept. A 45-word priming request took 11.2~s, so even short inputs pay a few seconds per call.
+
+The resource telemetry gives concrete form to the hardware sensitivity acknowledged in Section~4. Mean GPU utilization stayed around 95\% (per-run means between 92.6\% and 96.3\%, with peaks between 96\% and 100\%) throughout every run, global GPU memory peaked at 6,543~MiB of the 8,188~MiB available with the quantized model resident, and mean board power ranged from 75 to 93~W, while the CPU-side footprint stayed modest (peak of about 4.6~GB of RAM in the WSL2 environment). In practical terms, the accelerator is nearly saturated during the entire simplification window: the configuration of Table~\ref{tab:bench-hw} is sufficient, but with limited headroom, and weaker GPUs, smaller VRAM budgets, or CPU-only execution can be expected to push latency well beyond the values reported here.
+
+Since preserving essential legal information is the second objective, the identical output of runs 2 to 10 was also compared item by item with the original petition. The three parties, the council invited as amicus curiae, the civil inquiry and recommendation numbers, the three monetary amounts, and the ten requests, each with its object and addressee, were kept. The losses fell on procedural grounds and citations: the sections on federal jurisdiction and on the plaintiff's standing were dropped; of the eight normative instruments cited, three remained in the text, four only in the reference line added by post-processing, and one was lost; and provisions such as art.~109 of the Constitution and art.~138 of the Code of Civil Procedure were omitted. Thus, the output preserves what a lay reader needs (who is sued, for what, and for how much), but not the full legal grounds, so it should guide, not replace, the reading of the original.
+
+Finally, the objective numbers help contextualize the perceived-performance results. Participants rated the pace of the system very favorably (Q3 was the highest-scoring item, at 4.83, and the Performance construct averaged 4.65) even though a full-document pass takes about a minute and a half on this configuration, the same one used in the sessions. This is coherent with the triage-oriented usage pattern identified in the qualitative feedback: a single wait of under two minutes replaces a longer unassisted reading effort, as in the report of reading time dropping from roughly eight to four minutes. The benchmark is intentionally scoped to the main study condition, one document at the \texttt{medium} level on one machine; characterizing scaling across document sizes, simplification levels, and hardware tiers remains future work.
+
+\subsection{Discussion and Positioning in the Literature}
+
+The results position LASCAS relative to the studies reviewed in Section~3, which consistently highlight three central tensions in legal simplification: the scarcity of parallel data, the difficulty of evaluating simplification quality, and the risk of semantic loss. LASCAS does not resolve these tensions, but the empirical evidence suggests that its architecture offers a productive way of navigating them in practice.
+
+A first contribution is operational. While related studies focus on training strategies or corpus construction, LASCAS contributes a full prototype perspective: not only a simplification model, but a document-oriented workflow that includes extraction, legal-aware normalization, level-aware simplification, integrity validation, glossary support, and browser-side presentation.
+
+A second contribution concerns evaluation. As already suggested by Garimella et al.~(2022), automatic metrics and human judgment do not necessarily move in parallel in legal simplification. The present study extends that point by organizing user-centered evidence around perceived clarity, usefulness, and workflow fit rather than around simplification scores alone. The performance benchmark adds an objective layer to this argument: the studies reviewed in Section~3 concentrate on output quality and do not characterize runtime feasibility on end-user hardware, while the local-first premise of LASCAS makes this dimension unavoidable. Reporting latency, throughput, and resource usage alongside perceived usability therefore broadens the evidence base on which adoption decisions for legal simplification tools can be discussed.
+
+A third contribution lies in how the prototype is positioned. Participants repeatedly framed the system as support for initial reading, triage, and communication, not as a substitute for specialized legal interpretation. This framing is consistent with the human-oversight perspective discussed in Section~3, in which AI assistance is expected to augment rather than replace legal judgment \cite{toivonen2025jelt, zimina2025gai}; LASCAS operationalizes that expectation by keeping the tool bounded to comprehension support, with the original document always in view. Table~\ref{tab:lascas-comparison} compares LASCAS with the studies of Section~3. Toivonen et al. (2025) and Zimina-Poirot et al. (2025) are conceptual contributions, so the implementation-oriented dimensions do not apply to them.
+
+\begin{table}[H]\centering
+\caption{Positioning of LASCAS relative to related work ($\checkmark$ = addressed by the study; -- = not addressed or not applicable).}
+\label{tab:lascas-comparison}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.05}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{5.4cm}cccccc@{}}
+\toprule
+\textbf{Dimension} &
+\textbf{\shortstack{Garimella\\(2022)}} &
+\textbf{\shortstack{Alves\\(2023)}} &
+\textbf{\shortstack{Athugodage\\(2024)}} &
+\textbf{\shortstack{Toivonen\\(2025)}} &
+\textbf{\shortstack{Zimina-\\Poirot\\(2025)}} &
+\textbf{\shortstack{Stüker\\(2026)}} \\
+\midrule
+PT-BR legal text & -- & $\checkmark$ & -- & -- & -- & $\checkmark$ \\
+Parallel corpus built & -- & $\checkmark$ & $\checkmark$ & -- & -- & -- \\
+Model training / fine-tuning & $\checkmark$ & $\checkmark$ & $\checkmark$ & -- & -- & -- \\
+Automatic quality metrics & $\checkmark$ & $\checkmark$ & $\checkmark$ & -- & -- & -- \\
+Evaluation with people & $\checkmark$ & $\checkmark$ & $\checkmark$ & -- & -- & $\checkmark$ \\
+Plain language / human oversight & -- & -- & -- & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+\addlinespace[4pt]
+Local-first execution & -- & -- & -- & -- & -- & $\checkmark$ \\
+Automated integrity check & -- & -- & -- & -- & -- & $\checkmark$ \\
+End-user tool & -- & -- & -- & -- & -- & $\checkmark$ \\
+Runtime cost reported & -- & -- & -- & -- & -- & $\checkmark$ \\
+\bottomrule
+\end{tabular}
+\tablesource{prepared by the author (2026)}
+\end{table}
+
+
+\section{Conclusion}
+
+This study asked how modern NLP techniques, particularly those based on the Transformer architecture, can be applied to simplify Brazilian Portuguese legal texts and improve their cognitive accessibility according to Plain Language principles. Within the limits of this evaluation, the answer is that a local instruction-tuned language model can support this task when it works inside a level-aware pipeline that normalizes the input, protects and validates essential items, falls back to deterministic rules when needed, and presents the result next to the original document. As for the objectives, the first was met in Sections~2 and~3; the second, with the LASCAS prototype, was only partly met, since the benchmark output kept the parties, amounts, and requests of the petition but not all of its legal grounds; and the third was met with the pre-test and the study with 30 participants, who rated the prototype as easy to use and useful for initial reading and triage.
+
+The work contributes at three levels. Conceptually, it connects cognitive accessibility, plain language, and ATS in a domain where insufficient comprehension can directly affect autonomy, informed decision-making, and access to legal information. Technically, it proposes a hybrid architecture in which the language model operates alongside preprocessing, protection of essential information, validation, and presentation layers; since it was not compared with the language model alone, the gain of each layer remains to be measured. Empirically, it indicates that this combination already yields a prototype perceived by users as useful, easy to operate, and relevant for initial reading and triage.
+
+The results suggest that the value of LASCAS lies not only in rewriting difficult passages, but also in reorganizing access to the legal document: rather than competing with specialized legal reading, the tool acts as an intermediate support layer that helps users grasp the document's central theme, function, and most relevant points more quickly. Simplifying legal texts is therefore not only a text-generation challenge, but also a mediation problem between specialized language and public understanding, in which readability gains must be balanced with the preservation of essential meaning.
+
+This applied positioning is reinforced by the methodological stance of the work: the use of real documents, distinct participant profiles, and local execution conditions brought the evaluation closer to realistic contexts of use. The local-first design also made visible the practical trade-off between privacy, feasibility, latency, and model capacity, which is central for legal documents that may contain sensitive information. The backend benchmark made this trade-off concrete: on a consumer laptop GPU, a full petition was simplified in about a minute and a half, showing that model inference defines the performance boundary.
+
+These results are subject to threats to validity. The participants were recruited by convenience among people close to the author, which may favor positive answers; the outcomes are self-reported perceptions, not measured comprehension; each participant assessed a single document, the same for everyone; and the main study tested only the \texttt{medium} level. The findings therefore show perceived value in this setting and cannot be generalized to other users, documents, or levels without further studies.
+
+The study therefore points to a design direction in which legal simplification tools should be assessed not only by whether they produce simpler sentences, but also by whether they help users approach documents with more orientation, confidence, and control. Future directions include broader evaluations with objective comprehension tasks, richer glossary support, stronger PDF handling, OCR integration, latency optimizations for long documents, and models better adapted to Brazilian legal Portuguese. Its main contribution is not a claim of full automation, but a practical demonstration that legal AI can be designed as a layer of support for comprehension, helping users approach legal information with less friction and more autonomy.
+
+
+\bibliographystyle{abntex2-alf}
+\bibliography{referencias}
+
+\appendix
+\section{Component mapping to source files}
+
+\begin{table}[H]\centering
+\caption{Component mapping to source files in LASCAS.}
+\label{tab:components}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.6cm} >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Component} & \textbf{File(s)} \\
+\midrule
+Local API / warm-up / route & \texttt{lascas-local/server.js} \\
+PDF extractor \& fallbacks & \texttt{lascas-local/src/pdf.js} \\
+Preprocess \& protection & \texttt{lascas-local/src/preprocess.js} \\
+Glossary annotations & \texttt{lascas-local/src/glossary.js} \\
+Hybrid simplification core / final normalization & \texttt{lascas-local/src/simplifier.js} \\
+Integrity validator & \texttt{lascas-local/src/validators.js} \\
+MV3 manifest & \texttt{lascas-extension/public/manifest.json} \\
+Content CSS & \texttt{lascas-extension/public/sidebar.css} \\
+Popup UI / PDF picker & \texttt{lascas-extension/src/App.tsx} \\
+Popup bootstrap & \texttt{lascas-extension/src/main.tsx} \\
+Content script / DOM extraction & \texttt{lascas-extension/src/content.ts} \\
+\bottomrule
+\end{tabularx}
+\tablesource{prepared by the author (2026)}
+\end{table}
+
+\end{document}

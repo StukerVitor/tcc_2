@@ -1,0 +1,16 @@
+%%{init: {"sequence":{"messageFontSize":54,"messageFontWeight":"bold","actorFontWeight":"bold"}}}%%
+sequenceDiagram
+participant Popup
+participant Content
+participant API as Local API
+participant PDF as PDF Extractor
+participant Core as Simplifier Core
+
+Popup->>Content: LASCAS_RUN(level, source)
+Content->>API: POST /simplify or /simplify-pdf {html|pdf, level}
+API->>PDF: extractTextFromPdfBuffer(...) [PDF only]
+PDF-->>API: text
+API->>Core: simplifyBlocks(text, level)
+Core-->>API: {blocks, meta}
+API-->>Content: {blocks, meta}
+Content-->>Popup: Done (render sidebar)
