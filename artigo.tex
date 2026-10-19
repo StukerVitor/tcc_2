@@ -208,7 +208,7 @@ Locale-sensitive searches also targeted Portuguese and Russian efforts. After re
 
 \subsection{Selected Works}
 
-TODO: Frase inicial dizendo que aqui estão apresentados os trabalhos selecionados.
+This subsection presents the five works that remained after the search and screening process described above.
 
 \citeonline{garimella2022insights} explored text simplification (TS) for legal contracts, highlighting the lack of parallel data as a key challenge. By evaluating unsupervised methods and a supervised BART model, they found significant \textit{disagreement among legal experts on simplicity} and \textit{weak correlations between automatic metrics and human judgments}. Their work underscored the trade-offs between fluency, meaning preservation, and simplification level.
 
@@ -220,9 +220,9 @@ TODO: Frase inicial dizendo que aqui estão apresentados os trabalhos selecionad
 
 \citeonline{zimina2025gai} examine generative AI models as content rephrasing assistants for producing Plain Language and Easy-to-Read versions of legal texts in multilingual settings. Their case-based analysis shows that, although GAI can substantially simplify phrasing and structure, it still lacks functional legal awareness; consequently, effective workflows require human oversight, clear domain guidelines, and review tools to prevent semantic and pragmatic losses.
 
-\subsection{Comparação entre os trabalhos selecionados e Gap de Pesquisa}
+\subsection{Comparison of Selected Works and Research Gap}
 
-Overall, the literature evolves from exposing the limits of existing legal TS methods to proposing data-creation strategies and, more recently, broader plain-language and human-in-the-loop perspectives. Across these studies, the shared challenge remains improving readability without compromising legal meaning, especially in data-scarce settings. This gap directly motivates the LASCAS proposal.
+The five works share the same central challenge: making legal texts easier to read without compromising their legal meaning, under a persistent scarcity of legal parallel corpora. They differ in how they approach it. The three empirical studies treat simplification as a model-training problem, whether by reusing models trained on other domains, generating synthetic pairs, or building a new corpus, and evaluate it with automatic metrics and human judgments, but only on isolated sentences, judicial summaries, or truncated documents. The two conceptual works treat it as a communication problem and call for human oversight, without proposing a working system. The gap that LASCAS seeks to address lies between these two lines: none of the five studies delivers an end-user tool that processes full-length documents, runs locally, checks the integrity of its output, and reports its runtime cost.
 
 \section{LASCAS Model}
 
