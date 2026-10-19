@@ -202,17 +202,13 @@ LASCAS, however, relies on Llama 3.1, which adopts the decoder-only variant of t
 
 \section{Related Work}
 
-Related work was identified through a reproducible, funnel-style search across Google Scholar, ACL Anthology, Scopus, and DBLP. A broad search combining the terms ``legal text simplification,'' ``plain language,'' and ``law/legal,'' with a 2022--2026 filter, yielded \emph{$\sim 60$} items screened by title and abstract. Scope was then narrowed to ATS in the legal domain through combinations of ``text simplification,'' ``legal,'' and document types such as contracts, judgments, and statutes, alongside model terms such as Transformer, T5, and BART, reducing the pool to \emph{$\sim 25$}.
+Related work was identified through a reproducible, funnel-style search across Google Scholar, ACL Anthology, Scopus, and DBLP. A broad search combining the terms ``legal text simplification,'' ``plain language,'' and ``law/legal,'' with a 2022--2026 filter, yielded 60 items screened by title and abstract. This date filter limited the search to the last five years, so that the review reflects recent work in the field. Scope was then narrowed to ATS in the legal domain through combinations of ``text simplification,'' ``legal,'' and document types such as contracts, judgments, and statutes, alongside model terms such as Transformer, T5, and BART, reducing the pool to 25.
 
-Locale-sensitive searches also targeted Portuguese and Russian efforts. After removing duplicates and near-duplicates, \emph{$\sim 14$} studies remained. Inclusion then required either empirical ATS on legal data with metrics and/or human judgments, or peer-reviewed conceptual frameworks grounding plain-language and AI-assisted rephrasing for legal accessibility. After full-text screening, \emph{5} primary papers remained. The discussion below focuses on three empirical ATS studies in the legal domain \cite{garimella2022insights,alves2023automatic,athugodage2024transfer} and two works framing plain language and AI-assisted rephrasing as accessibility enablers in law \cite{toivonen2025jelt,zimina2025gai}. This set aligns with the identified research gap (semantic fidelity vs.\ accessibility under data scarcity). Figure~\ref{fig:research_funnel} summarizes this search and screening process.
+Locale-sensitive searches also targeted Portuguese and Russian efforts. After removing duplicates and near-duplicates, 14 studies remained. Inclusion then required either empirical ATS on legal data with metrics and/or human judgments, or peer-reviewed conceptual frameworks grounding plain-language and AI-assisted rephrasing for legal accessibility. After full-text screening, 5 primary papers remained. The discussion below focuses on three empirical ATS studies in the legal domain \cite{garimella2022insights,alves2023automatic,athugodage2024transfer} and two works framing plain language and AI-assisted rephrasing as accessibility enablers in law \cite{toivonen2025jelt,zimina2025gai}. This set aligns with the identified research gap (semantic fidelity vs.\ accessibility under data scarcity).
 
-\begin{figure}[H]
-  \centering
-  \caption{Funnel-style search and screening process for related work.}
-  \includegraphics[width=.5\linewidth]{images/research.pdf}
-  \label{fig:research_funnel}
-  \figsource{prepared by the author (2026)}
-\end{figure}
+\subsection{Selected Works}
+
+TODO: Frase inicial dizendo que aqui estão apresentados os trabalhos selecionados.
 
 \citeonline{garimella2022insights} explored text simplification (TS) for legal contracts, highlighting the lack of parallel data as a key challenge. By evaluating unsupervised methods and a supervised BART model, they found significant \textit{disagreement among legal experts on simplicity} and \textit{weak correlations between automatic metrics and human judgments}. Their work underscored the trade-offs between fluency, meaning preservation, and simplification level.
 
@@ -223,6 +219,8 @@ Locale-sensitive searches also targeted Portuguese and Russian efforts. After re
 \citeonline{toivonen2025jelt} discuss plain-language communication and the role of AI within the emerging paradigm of “personalized law,” arguing that user-centered legal design and clear wording are prerequisites for accessibility rather than optional stylistic choices. They caution that AI should augment, not replace, human judgment, recommending standards and oversight to avoid opacity and loss of legal nuance. Although not an empirical simplification benchmark, the paper positions plain language and responsible AI as foundations for scalable legal accessibility.
 
 \citeonline{zimina2025gai} examine generative AI models as content rephrasing assistants for producing Plain Language and Easy-to-Read versions of legal texts in multilingual settings. Their case-based analysis shows that, although GAI can substantially simplify phrasing and structure, it still lacks functional legal awareness; consequently, effective workflows require human oversight, clear domain guidelines, and review tools to prevent semantic and pragmatic losses.
+
+\subsection{Comparação entre os trabalhos selecionados e Gap de Pesquisa}
 
 Overall, the literature evolves from exposing the limits of existing legal TS methods to proposing data-creation strategies and, more recently, broader plain-language and human-in-the-loop perspectives. Across these studies, the shared challenge remains improving readability without compromising legal meaning, especially in data-scarce settings. This gap directly motivates the LASCAS proposal.
 
